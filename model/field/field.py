@@ -29,6 +29,8 @@ class Field:
         self._height = len(rows)
         self._width = len(rows[0])
 
+        # TODO проверка корректности расстановки стен
+
         for row in rows:
             if len(row) != self._height:
                 raise RowSizeException(self._height, len(row))
