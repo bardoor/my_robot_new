@@ -73,5 +73,15 @@ def test_robot_paint_painted_cell_many_times(robot):
 
 def test_robot_check_wall(robot):
     assert robot.is_wall(Direction.SOUTH)
+    assert robot.is_wall(Direction.WEST)
+    assert not robot.is_wall(Direction.EAST)
+    assert not robot.is_wall(Direction.NORTH)
+
+    assert robot.step(Direction.NORTH) is True
+
+    assert robot.is_wall(Direction.NORTH)
+    assert robot.is_wall(Direction.WEST)
+    assert not robot.is_wall(Direction.SOUTH)
+    assert not robot.is_wall(Direction.EAST)
 
 
