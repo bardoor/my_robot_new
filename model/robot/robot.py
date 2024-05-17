@@ -1,4 +1,8 @@
-class Robot():
+from ..direction import Direction
+from ..field.cell import Cell
+
+
+class Robot:
     _cell: Cell
 
     def __init__(self, cell: Cell | None = None) -> None:
