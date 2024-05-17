@@ -1,0 +1,10 @@
+<field>
+    <row>
+        <cell painted="True" walls="west north east"/>
+        <cell painted="True" walls="north east west south"/>
+    </row>
+    <row>
+        <cell painted="False" walls="west south"/>
+        <cell painted="False" walls="south north"/>
+    </row>
+</field>
