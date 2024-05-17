@@ -1,4 +1,7 @@
+from .cell import Cell
+from ..robot.robot import Robot
 from ..direction import Direction
+import xml.etree.ElementTree as et
 
 
 class Field:
@@ -19,7 +22,7 @@ class Field:
         return iter(self._cells)
 
     def _generate(self, environment_path: str):
-        root = ET.parse(environment_path).getroot()
+        root = et.parse(environment_path).getroot()
         rows = root.findall("row")
 
         self._height = len(rows)
