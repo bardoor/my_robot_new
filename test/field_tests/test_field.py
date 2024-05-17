@@ -1,7 +1,7 @@
 from model.field.field import Field
 from model.direction import Direction
 import pytest
-from model.field.exceptions import FieldSizeException
+from model.field.exceptions import RowSizeException
 
 
 @pytest.fixture
@@ -81,5 +81,5 @@ def test_field_with_robot(field_with_robot: Field):
 
 
 def test_field_wrong_size():
-    with pytest.raises(FieldSizeException):
+    with pytest.raises(RowSizeException):
         Field("test_env_wrong_size.xml")
