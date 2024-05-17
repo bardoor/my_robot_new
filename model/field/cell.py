@@ -3,9 +3,13 @@ from ..direction import Direction
 
 
 class Cell:
+    _paints_count: int
+    _walls: [Wall]
+    _robot: 'Robot'
+    _neighbors: {'Cell'}
 
     def __init__(self, is_painted: bool = False, walls: list[Direction] = None, robot: 'Robot' = None):
-        self._is_painted = is_painted
+        self._paints_count = int(is_painted)
         self._walls = self._generate_walls(walls)
         self._neighbors = {}
         self._robot = robot
@@ -34,10 +38,14 @@ class Cell:
 
     @property
     def is_painted(self) -> bool:
-        return self._is_painted
+        return self._paints_count > 0
+
+    @property
+    def paints_count(self) -> int:
+        return self._paints_count
 
     def paint(self) -> None:
-        self._is_painted = True
+        self._paints_count += 1
 
     def is_wall(self, direction: Direction):
         for wall in self._walls:
