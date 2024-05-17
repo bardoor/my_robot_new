@@ -2,6 +2,7 @@ from .cell import Cell
 from ..robot.robot import Robot
 from ..direction import Direction
 import xml.etree.ElementTree as et
+from .exceptions import *
 
 
 class Field:
@@ -29,6 +30,9 @@ class Field:
         self._width = len(rows[0])
 
         for row in rows:
+            if len(row) != self._height:
+                raise RowSizeException(self._height, len(row))
+
             cells = row.findall("cell")
             for cell in cells:
                 cell_walls = []
