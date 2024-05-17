@@ -5,7 +5,7 @@ from robot.robot_command import *
 class Program:
     __commands: [RobotCommand]
     __current: int
-    __timer: threading.Timer
+    __timer: threading.Timer | None
 
     def __init__(self):
         self.__commands = []
