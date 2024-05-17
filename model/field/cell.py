@@ -1,3 +1,4 @@
+from .wall import Wall
 from ..direction import Direction
 
 
@@ -39,7 +40,10 @@ class Cell:
         self._is_painted = True
 
     def is_wall(self, direction: Direction):
-        return direction in self._walls
+        for wall in self._walls:
+            if wall.direction == direction:
+                return True
+        return False
 
     def set_neighbor(self, direction: Direction, cell: 'Cell'):
         self._neighbors[direction] = cell
