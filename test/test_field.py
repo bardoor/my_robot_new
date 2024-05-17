@@ -6,13 +6,13 @@ from model.field.exceptions import RowSizeException
 
 @pytest.fixture
 def empty_field():
-    field = Field("test_env_base.xml")
+    field = Field("environments/test_env_base.xml")
     return field
 
 
 @pytest.fixture
 def field_with_robot():
-    field = Field("test_env_with_robot.xml")
+    field = Field("environments/test_env_with_robot.xml")
     return field
 
 
@@ -82,4 +82,4 @@ def test_field_with_robot(field_with_robot: Field):
 
 def test_field_wrong_size():
     with pytest.raises(RowSizeException):
-        Field("test_env_wrong_size.xml")
+        Field("environments/test_env_wrong_size.xml")
