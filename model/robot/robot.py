@@ -41,6 +41,9 @@ class Robot:
         self._cell = neighbor
         return True
 
+    def is_wall(self, direction: Direction):
+        return self._cell.is_wall(direction)
+
     def paint(self) -> bool:
         if self._cell.is_painted:
             return False
