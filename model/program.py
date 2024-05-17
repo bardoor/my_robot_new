@@ -1,5 +1,5 @@
 import time, threading
-from robot.robot_command import *
+from model.robot.robot_command import *
 
 
 class Program:
