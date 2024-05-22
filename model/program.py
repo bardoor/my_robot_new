@@ -1,14 +1,10 @@
 import time, threading
+
+from model.field.field import Field
 from model.robot.robot_command import *
 
 
 class Program:
-    __commands: [RobotCommand]
-    __current: int
-    __timer: threading.Timer | None
-    __results: [bool]
-    __execution_listeners: []
-
     def __init__(self):
         self.__commands = []
         self.__current = 0
@@ -16,14 +12,17 @@ class Program:
         self.__results = []
         self.__execution_listeners = []
         self.__log_file = open('loh.txt', 'w')
+        self.__field = None
 
     def add_command(self, command: RobotCommand):
+        command.set_robot(self.__field.robot)
         self.__commands.append(command)
 
     def get_results(self):
         return self.__results
 
     def start_execution(self, interval: float):
+        self.__field = Field("../sample_environment.xml")
         self.__timer = threading.Timer(interval, self.__execute_current)
 
     def __execute_current(self):
