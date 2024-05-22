@@ -11,6 +11,7 @@ class Server:
 
     def __init__(self):
         self._program = Program()
+        self._program.add_listener(self)
         self._server = socket.socket()
         self._server.bind((Config.HOST, Config.PORT))
         self._server.listen(1)
@@ -25,6 +26,7 @@ class Server:
 
     def run(self):
         self.accept()
+        self._program.start_execution(3)
 
         while True:
             command = recv_json(self._client)
