@@ -5,6 +5,9 @@ import xml.etree.ElementTree as et
 from .exceptions import *
 
 
+# TODO сделать класс seeder, который будет брать обстановку в файле (или ещё где-то)
+# и заполнять поле, а оно автоматически будет ставить ссылки на соседей
+# возможно методы типа add_in_row(), add_in_col()
 class Field:
     def __init__(self, environment_path: str):
         self._cells = []
@@ -30,6 +33,7 @@ class Field:
         self._width = len(rows[0])
 
         # TODO проверка корректности расстановки стен
+        # TODO Вынести это всё в сущность парсер, чтоб поле не знало о файлике с обстановкой
 
         for row in rows:
             if len(row) != self._height:
