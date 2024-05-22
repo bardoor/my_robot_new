@@ -7,6 +7,7 @@ class Program:
     __current: int
     __timer: threading.Timer | None
     __results: [bool]
+    __execution_listeners: []
 
     def __init__(self):
         self.__commands = []
@@ -28,18 +29,14 @@ class Program:
             return None
 
         result = self.__commands[self.__current].execute()
-        self.__results.append(result)
-        self.__send_command_result(result)
+        self.fire_command_executed(result)
         self.__current += 1
-
-    def __send_command_result(self, result):
-        pass
 
     def __end_execution(self):
         if self.__timer is None:
             return None
         self.__timer.cancel()
 
-
-
-
+    def fire_command_executed(self, result):
+        for listener in self.__execution_listeners:
+            listener.commandExecuted(result)
