@@ -11,7 +11,6 @@ class Program:
         self.__timer = None
         self.__results = []
         self.__execution_listeners = []
-        self.__log_file = open('loh.txt', 'w')
         self.__field = None
 
     def add_command(self, command: RobotCommand):
@@ -24,15 +23,13 @@ class Program:
     def start_execution(self, interval: float):
         self.__field = Field("C:\\Projects\\my_robot_new\\model\\sample_environment.xml")
         self.__timer = threading.Timer(interval, self.__execute_current)
+        self.__timer.start()
 
     def __execute_current(self):
-        print(1, file=self.__log_file)
-
         if self.__current >= len(self.__commands):
             return None
 
         result = self.__commands[self.__current].execute()
-        print(str(result), file=self.__log_file)
         self.fire_command_executed(result)
         self.__current += 1
 
@@ -46,4 +43,4 @@ class Program:
 
     def fire_command_executed(self, result):
         for listener in self.__execution_listeners:
-            listener.commandExecuted(result)
+            listener.command_executed(result)

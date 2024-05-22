@@ -17,6 +17,7 @@ class Server:
         self._server.listen(1)
         self._client = None
         self._client_addr = None
+        self.__log_file = open('loh.txt', 'w')
 
     def has_client(self):
         return self._client is not None
@@ -35,6 +36,10 @@ class Server:
             self._program.add_command(parse(command))
 
         self.close()
+
+    def command_executed(self, result):
+        print(str(result), file=self.__log_file)
+        send_json(self._client, {"status": result})
 
     def close(self):
         if self._client is not None:

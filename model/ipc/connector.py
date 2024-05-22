@@ -62,5 +62,5 @@ class Connector:
 
 con = Connector()
 con.connect()
-con.send({'command': 'paint'})
+print(con.send({'command': 'paint'}, need_answer=True))
 con.send({'command': 'quit'})
