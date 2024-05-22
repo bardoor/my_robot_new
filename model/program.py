@@ -22,7 +22,7 @@ class Program:
         return self.__results
 
     def start_execution(self, interval: float):
-        self.__field = Field("../sample_environment.xml")
+        self.__field = Field("C:\\Projects\\my_robot_new\\model\\sample_environment.xml")
         self.__timer = threading.Timer(interval, self.__execute_current)
 
     def __execute_current(self):

@@ -36,8 +36,8 @@ class Field:
         # TODO Вынести это всё в сущность парсер, чтоб поле не знало о файлике с обстановкой
 
         for row in rows:
-            if len(row) != self._height:
-                raise RowSizeException(self._height, len(row))
+            if len(row) != self._width:
+                raise RowSizeException(self._width, len(row))
 
             cells = row.findall("cell")
             for cell in cells:
