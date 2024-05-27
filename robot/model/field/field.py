@@ -9,23 +9,65 @@ from .exceptions import *
 # и заполнять поле, а оно автоматически будет ставить ссылки на соседей
 # возможно методы типа add_in_row(), add_in_col()
 class Field:
-    def __init__(self, environment_path: str):
+
+    def __init__(self, height: int, width: int) -> None:
+        self._validate(height, width)
+        self._height = height
+        self._width = width
+
         self._cells = []
-        self._width = self._height = 0
-        self._generate(environment_path)
+        self._cells_map = {}
+        self._generate_field()
 
-    @property
-    def width(self):
+    def _validate(self, height: int, width: int) -> None:
+        if not isinstance(height, int) or not isinstance(width, int):
+            raise TypeError('"height" and "width" both must be int type')
+        if height <= 0 or width <= 0:
+            raise ValueError('"height" and "width" both must be positive numbers')
+
+    def width(self) -> int:
         return self._width
-
-    @property
-    def height(self):
+    
+    def height(self) -> int:
         return self._height
 
     def cells(self):
-        return iter(self._cells)
+        return self._cells
 
-    def _generate(self, environment_path: str):
+    def add_row(self) -> None:
+        pass
+
+    def add_col(self) -> None:
+        pass
+
+    def _generate_field(self):
+        start_cell = Cell()
+        self._cells_map['left_top'] = start_cell
+        self._cells_map['right_top'] = start_cell
+        self._cells_map['left_bottom'] = start_cell
+        self._cells_map['right_bottom'] = start_cell
+
+        self._cells.append(start_cell)
+
+        current_row = start_cell
+        for i in range(self._height):
+            current_col = current_row
+            self._cells_map['left_bottom'] = current_col
+
+            for j in range(1, self._width):
+                next_cell = Cell()
+                self._cells.append(next_cell)
+                current_col.set_neighbor(Direction.EAST, next_cell)
+                current_col = next_cell
+                self._cells_map['right_bottom'] = current_col
+
+            if i + 1 < self._height:
+                next_row = Cell()
+                self._cells.append(next_row)
+                current_row.set_neighbor(Direction.SOUTH, next_row)
+                current_row = next_row
+
+    def _generate(self):
         root = et.parse(environment_path).getroot()
         rows = root.findall("row")
 
@@ -76,7 +118,6 @@ class Field:
 
         return matrix
 
-    @property
     def robot(self):
         for cell in self._cells:
             if cell.robot is not None:
