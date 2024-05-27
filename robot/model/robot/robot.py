@@ -53,4 +53,3 @@ class Robot:
     def paint(self) -> bool:
         self._cell.paint()
         return True
-
