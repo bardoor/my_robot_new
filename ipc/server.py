@@ -1,10 +1,11 @@
 from __future__ import annotations
 import socket
+import os
 
-from model.ipc.config import Config
-from model.ipc.parser import parse
+from .config import Config
+from .parser import parse
 from model.program import Program
-from socket_json import send_json, recv_json
+from .socket_json import send_json, recv_json
 
 
 class Server:
@@ -17,7 +18,7 @@ class Server:
         self._server.listen(1)
         self._client = None
         self._client_addr = None
-        self.__log_file = open('loh.txt', 'w')
+        self.__log_file = open(os.path.dirname(os.path.abspath(__file__)) + '\log.txt', 'w')
 
     def has_client(self):
         return self._client is not None
@@ -54,5 +55,5 @@ class Server:
         self._server = None
 
 
-server = Server()
-server.run()
+_server = Server()
+_server.run()
