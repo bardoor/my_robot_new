@@ -1,3 +1,4 @@
+from __future__ import annotations
 from enum import Enum
 
 
@@ -7,9 +8,8 @@ class Direction(Enum):
     WEST = 'west'
     EAST = 'east'
 
-    @staticmethod
-    def opposite(direction: 'Direction'):
-        match direction:
+    def opposite(self) -> Direction:
+        match self:
             case Direction.NORTH:
                 return Direction.SOUTH
             case Direction.SOUTH:
@@ -18,6 +18,28 @@ class Direction(Enum):
                 return Direction.WEST
             case Direction.WEST:
                 return Direction.EAST
+
+    def clockwise(self) -> Direction:
+        match self:
+            case Direction.NORTH:
+                return Direction.EAST
+            case Direction.EAST:
+                return Direction.SOUTH
+            case Direction.SOUTH:
+                return Direction.WEST
+            case Direction.WEST:
+                return Direction.NORTH
+
+    def anticlockwise(self) -> Direction:
+        match self:
+            case Direction.NORTH:
+                return Direction.WEST
+            case Direction.WEST:
+                return Direction.SOUTH
+            case Direction.SOUTH:
+                return Direction.EAST
+            case Direction.EAST:
+                return Direction.NORTH
 
     @staticmethod
     def from_str(direction: str):
