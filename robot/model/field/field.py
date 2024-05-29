@@ -1,4 +1,5 @@
 from typing import Iterable
+import json
 
 from .cell import Cell
 from ..robot.robot import Robot
@@ -27,6 +28,21 @@ class Field:
         if not isinstance(height, int) or not isinstance(width, int):
             raise TypeError('"height" and "width" both must be int type')
 
+    def dump(self, env_file_name: str) -> None:
+        env_config = {'height': self.height(), 'width': self.width()}
+
+        walls = self._get_walls_pos()
+        env_config['walls'] = walls
+
+        painted = self._get_painted_pos()
+        env_config['painted'] = painted
+
+        robot = self._get_robot_pos()
+        env_config['robot'] = robot
+
+        with open(env_file_name, 'w') as output:
+            json.dump(env_config, output)
+
     def size(self) -> tuple[int, int]:
         return (self._width, self._height)
 
@@ -35,6 +51,37 @@ class Field:
     
     def height(self) -> int:
         return self._height
+
+    def _get_walls_pos(self) -> list[tuple[int, int]]:
+        walls = []
+        # TODO
+        return walls
+
+    def _get_painted_pos(self) -> list[tuple[int, int]]:
+        painted = []
+        for x in range(self._width):
+            for y in range(self._height):
+                if self.get_cell(x, y).is_painted():
+                    painted.append({'x': x, 'y': y})
+        return painted
+
+    def _get_robot_pos(self) -> tuple[int, int] | None:
+        for x in range(self._width):
+            for y in range(self._height):
+                if self.get_cell(x, y).get_robot() is not None:
+                    return {'x': x, 'y': y}
+        return None
+
+    def _get_pos(self, cell: Cell) -> tuple[int, int] | None:
+        # Зачем нужен метод, который по переданной клетке, возвращает её позицию на поле?
+        # Только для сериализации обстановки: чтобы, например, пройтись по всем клеткам,
+        # найти только закрашенные и сереализовать их коориданаты в файле.
+        # Все что здесь происходит жутко алгоритмически неэффективно...
+        for x in range(self._width):
+            for y in range(self._height):
+                if self.get_cell(x, y) == cell:
+                    return (x, y)
+        return None
 
     def get_cell(self, x: int, y: int) -> Cell:
         if not isinstance(x, int) or not isinstance(y, int):
@@ -129,7 +176,7 @@ class Field:
 
         self._width -= 1
 
-    def _generate_field(self):
+    def _generate_field(self) -> None:
         self._left_top_cell = Cell()
 
         self._cells_map['right_top'] = self._left_top_cell
@@ -153,57 +200,6 @@ class Field:
                 current_row = next_row
 
                 self._cells_map['left_bottom'] = current_row
-
-    def _generate(self):
-        root = et.parse(environment_path).getroot()
-        rows = root.findall("row")
-
-        self._height = len(rows)
-        self._width = len(rows[0])
-
-        # TODO проверка корректности расстановки стен
-        # TODO Вынести это всё в сущность парсер, чтоб поле не знало о файлике с обстановкой
-
-        for row in rows:
-            if len(row) != self._width:
-                raise RowSizeException(self._width, len(row))
-
-            cells = row.findall("cell")
-            for cell in cells:
-                cell_walls = []
-
-                if (walls := cell.get("walls", None)) is not None:
-                    walls = walls.split(" ")
-                    for direction in walls:
-                        cell_walls.append(Direction.from_str(direction))
-
-                cell_is_painted = cell.get("painted") == "True"
-                robot = Robot() if cell.get("robot") == "True" else None
-                self._cells.append(Cell(cell_is_painted, cell_walls, robot))
-
-        self._set_neighbors()
-
-    def _set_neighbors(self):
-        cells_matrix = self._as_matrix()
-        for row in range(0, self._height):
-            for col in range(0, self._width):
-                if row > 0:
-                    cells_matrix[row][col].set_neighbor(Direction.NORTH, cells_matrix[row - 1][col])
-                if row < self._height - 1:
-                    cells_matrix[row][col].set_neighbor(Direction.SOUTH, cells_matrix[row + 1][col])
-                if col > 0:
-                    cells_matrix[row][col].set_neighbor(Direction.WEST, cells_matrix[row][col - 1])
-                if col < self._width - 1:
-                    cells_matrix[row][col].set_neighbor(Direction.EAST, cells_matrix[row][col + 1])
-
-    def _as_matrix(self):
-        matrix = []
-
-        for i in range(0, len(self._cells), self._width):
-            row = self._cells[i: i + self._width]
-            matrix.append(row)
-
-        return matrix
 
     def robot(self):
         for cell in self._cells:
