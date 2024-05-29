@@ -8,9 +8,6 @@ import xml.etree.ElementTree as et
 from .exceptions import *
 
 
-# TODO сделать класс seeder, который будет брать обстановку в файле (или ещё где-то)
-# и заполнять поле, а оно автоматически будет ставить ссылки на соседей
-# возможно методы типа add_in_row(), add_in_col()
 class Field:
 
     def __init__(self, width: int, height: int) -> None:
@@ -80,17 +77,6 @@ class Field:
             for y in range(self._height):
                 if self.get_cell(x, y).get_robot() is not None:
                     return {'x': x, 'y': y}
-        return None
-
-    def _get_pos(self, cell: Cell) -> tuple[int, int] | None:
-        # Зачем нужен метод, который по переданной клетке, возвращает её позицию на поле?
-        # Только для сериализации обстановки: чтобы, например, пройтись по всем клеткам,
-        # найти только закрашенные и сереализовать их коориданаты в файле.
-        # Все что здесь происходит жутко алгоритмически неэффективно...
-        for x in range(self._width):
-            for y in range(self._height):
-                if self.get_cell(x, y) == cell:
-                    return (x, y)
         return None
 
     def get_cell(self, x: int, y: int) -> Cell:
@@ -212,6 +198,6 @@ class Field:
                 self._cells_map['left_bottom'] = current_row
 
     def robot(self):
-        for cell in self._cells:
-            if cell.robot is not None:
-                return cell.robot
+        for cell in self.cells():
+            if (robot := cell.get_robot()) is not None:
+                return robot
