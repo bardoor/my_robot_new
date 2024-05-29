@@ -48,15 +48,18 @@ class Cell:
         return self.get_neighbor(direction) is not None
 
     def set_neighbor(self, direction: Direction, neighbor: Cell | None) -> None:
+        if neighbor is None:
+            t = self._neighbors.get(direction, None)
+            if t is not None:
+                del self._neighbors[direction]
+
+                if t.get_neighbor(direction.opposite()) == self:
+                    t.set_neighbor(direction.opposite(), None)
+            return
+
         if (self.get_neighbor(direction) not in {None, neighbor}) \
                 or (neighbor.get_neighbor(direction.opposite()) not in {None, self}):
             raise ValueError('"neighbor" cannot be set as a neighbor, because it has its own neighbor already')
-        
-        if neighbor is None:
-            t = self._neighbors[direction]
-            self._neighbors[direction] = None
-            t.set_neighbor(direction.opposite(), None)
-            return
 
         self._neighbors[direction] = neighbor
         if self.has_wall(direction):
@@ -85,7 +88,7 @@ class Cell:
     def walls(self):
         return iter(self._walls)
 
-    def neighbors(self):
+    def neighbors(self) -> dict[Direction, Cell]:
         return self._neighbors
 
     def get_robot(self) -> Robot | None:
