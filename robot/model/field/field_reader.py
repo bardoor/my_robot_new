@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from robot.model.field import Field
+from robot.model.robot import Robot
 
 
 class FieldReader:
@@ -26,7 +27,11 @@ class FieldReader:
         for painted_cell_pos in self._painted:
             field.get_cell(painted_cell_pos["x"], painted_cell_pos["y"]).paint()
 
-        # TODO: установка стен, установка робота...
+        if self._robot is not None:
+            x, y = self._robot["x"], self._robot["y"]
+            field.get_cell(x, y).set_robot(Robot())
+
+        # TODO: установка стен...
 
     def get_field(self) -> Field:
         field = Field(self._width, self._height)

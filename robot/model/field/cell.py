@@ -103,7 +103,7 @@ class Cell:
 
         self._robot = new_robot
 
-        if (self._robot is not None) and (self is not new_robot.cell):
+        if (self._robot is not None) and (self is not new_robot.get_cell()):
             new_robot.set_cell(self)
 
     def is_painted(self) -> bool:
