@@ -1,11 +1,8 @@
 from typing import Iterable
 import json
 
-from .cell import Cell
-from ..robot.robot import Robot
-from ..direction import Direction
-import xml.etree.ElementTree as et
-from .exceptions import *
+from robot.model.field.cell import Cell
+from robot.model.direction import Direction
 
 
 class Field:
