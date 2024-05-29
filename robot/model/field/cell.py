@@ -85,8 +85,8 @@ class Cell:
             return self._neighbors[direction]
         return None
 
-    def walls(self):
-        return iter(self._walls)
+    def walls(self) -> dict[Direction, Wall]:
+        return self._walls
 
     def neighbors(self) -> dict[Direction, Cell]:
         return self._neighbors

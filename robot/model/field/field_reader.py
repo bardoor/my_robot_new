@@ -3,6 +3,8 @@ from pathlib import Path
 
 from robot.model.field import Field
 from robot.model.robot import Robot
+from robot.model.field import Wall
+from robot.model.direction import Direction
 
 
 class FieldReader:
@@ -31,7 +33,10 @@ class FieldReader:
             x, y = self._robot["x"], self._robot["y"]
             field.get_cell(x, y).set_robot(Robot())
 
-        # TODO: установка стен...
+        if self._walls:
+            for wall_info in self._walls:
+                x, y, direction = wall_info["x"], wall_info["y"], Direction.from_str(wall_info["direction"])
+                field.get_cell(x, y).set_wall(direction, Wall())
 
     def get_field(self) -> Field:
         field = Field(self._width, self._height)

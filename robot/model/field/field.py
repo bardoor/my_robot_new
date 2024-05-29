@@ -31,7 +31,7 @@ class Field:
     def dump(self, env_file_name: str) -> None:
         env_config = {'height': self.height(), 'width': self.width()}
 
-        walls = self._get_walls_pos()
+        walls = self._get_walls()
         env_config['walls'] = walls
 
         painted = self._get_painted_pos()
@@ -52,10 +52,20 @@ class Field:
     def height(self) -> int:
         return self._height
 
-    def _get_walls_pos(self) -> list[tuple[int, int]]:
-        walls = []
-        # TODO
-        return walls
+    def _get_walls(self) -> list[tuple[int, int]]:
+        seen_walls = []
+        walls_info = []
+        
+        for x in range(self._width):
+            for y in range(self._height):
+                cell = self.get_cell(x, y)
+
+                for direction, wall in cell.walls().items():
+                    if wall not in seen_walls:
+                        seen_walls.append(wall)
+                        walls_info.append({"x": x, "y": y, "direction": str(direction)})
+
+        return walls_info
 
     def _get_painted_pos(self) -> list[tuple[int, int]]:
         painted = []
