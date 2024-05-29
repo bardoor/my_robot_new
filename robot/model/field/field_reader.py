@@ -36,6 +36,10 @@ class FieldReader:
         if self._walls:
             for wall_info in self._walls:
                 x, y, direction = wall_info["x"], wall_info["y"], Direction.from_str(wall_info["direction"])
+
+                if field.get_cell(x, y).has_wall(direction):
+                    continue
+                
                 field.get_cell(x, y).set_wall(direction, Wall())
 
     def get_field(self) -> Field:
