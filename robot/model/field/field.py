@@ -12,23 +12,23 @@ from .exceptions import *
 # возможно методы типа add_in_row(), add_in_col()
 class Field:
 
-    def __init__(self, height: int, width: int) -> None:
-        self._validate(height, width)
-        self._height = height
+    def __init__(self, width: int, height: int) -> None:
+        self._validate(width, height)
         self._width = width
+        self._height = height
 
         self._left_top_cell = None
         self._cells_map = {}
         self._generate_field()
 
-    def _validate(self, height: int, width: int) -> None:
-        if not isinstance(height, int) or not isinstance(width, int):
-            raise TypeError('"height" and "width" both must be int type')
+    def _validate(self, width: int, height: int) -> None:
         if height <= 0 or width <= 0:
             raise ValueError('"height" and "width" both must be positive numbers')
+        if not isinstance(height, int) or not isinstance(width, int):
+            raise TypeError('"height" and "width" both must be int type')
 
     def size(self) -> tuple[int, int]:
-        return (self._height, self._width)
+        return (self._width, self._height)
 
     def width(self) -> int:
         return self._width
