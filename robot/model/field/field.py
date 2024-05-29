@@ -142,6 +142,8 @@ class Field:
         need_to_remove = []
         for i in range(self._width):
             need_to_remove.append(self.get_cell(i, self._height - 1))
+            if need_to_remove[-1].get_robot() is not None:
+                raise RuntimeError("Cannot remove cell with the robot")
         
         # Возможно тут надо как-то более хитро удалять, чтобы не было
         # висячих ссылок или типа того, но как же мне лень в этом разбираться...
@@ -159,6 +161,8 @@ class Field:
         need_to_remove = []
         for i in range(self._height):
             need_to_remove.append(self.get_cell(self._width - 1, i))
+            if need_to_remove[-1].get_robot() is not None:
+                raise RuntimeError("Cannot remove cell with the robot")
         
         # Возможно тут надо как-то более хитро удалять, чтобы не было
         # висячих ссылок или типа того, но как же мне лень в этом разбираться...
