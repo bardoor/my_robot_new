@@ -51,7 +51,7 @@ class FieldSerializer:
         env_config['robot'] = robot
 
         with open(file_name, 'w') as output:
-            json.dump(env_config, output)
+            json.dump(env_config, output, indent=4)
 
 
 def dump_field(field: Field, file_name: str) -> None:
