@@ -3,6 +3,7 @@ import json
 
 from robot.model.field.cell import Cell
 from robot.model.direction import Direction
+from robot.model.robot import Robot
 
 
 class Field:
@@ -22,21 +23,6 @@ class Field:
         if not isinstance(height, int) or not isinstance(width, int):
             raise TypeError('"height" and "width" both must be int type')
 
-    def dump(self, env_file_name: str) -> None:
-        env_config = {'height': self.height(), 'width': self.width()}
-
-        walls = self._get_walls()
-        env_config['walls'] = walls
-
-        painted = self._get_painted_pos()
-        env_config['painted'] = painted
-
-        robot = self._get_robot_pos()
-        env_config['robot'] = robot
-
-        with open(env_file_name, 'w') as output:
-            json.dump(env_config, output)
-
     def size(self) -> tuple[int, int]:
         return (self._width, self._height)
 
@@ -45,36 +31,6 @@ class Field:
     
     def height(self) -> int:
         return self._height
-
-    def _get_walls(self) -> list[tuple[int, int]]:
-        seen_walls = []
-        walls_info = []
-        
-        for x in range(self._width):
-            for y in range(self._height):
-                cell = self.get_cell(x, y)
-
-                for direction, wall in cell.walls().items():
-                    if wall not in seen_walls:
-                        seen_walls.append(wall)
-                        walls_info.append({"x": x, "y": y, "direction": str(direction)})
-
-        return walls_info
-
-    def _get_painted_pos(self) -> list[tuple[int, int]]:
-        painted = []
-        for x in range(self._width):
-            for y in range(self._height):
-                if self.get_cell(x, y).is_painted():
-                    painted.append({'x': x, 'y': y})
-        return painted
-
-    def _get_robot_pos(self) -> tuple[int, int] | None:
-        for x in range(self._width):
-            for y in range(self._height):
-                if self.get_cell(x, y).get_robot() is not None:
-                    return {'x': x, 'y': y}
-        return None
 
     def get_cell(self, x: int, y: int) -> Cell:
         if not isinstance(x, int) or not isinstance(y, int):
@@ -112,6 +68,7 @@ class Field:
         return visited
 
     def add_row(self) -> None:
+        """Добавляет новую строку снизу"""
         new_row = Cell()
         self._cells_map['left_bottom'].set_neighbor(Direction.SOUTH, new_row)
         self._cells_map['left_bottom'] = new_row
@@ -124,6 +81,7 @@ class Field:
         self._height += 1
 
     def add_col(self) -> None:
+        """Добавляет новую колонку справа"""
         new_col = Cell()
         self._cells_map['right_top'].set_neighbor(Direction.EAST, new_col)
         self._cells_map['right_top'] = new_col
@@ -136,6 +94,9 @@ class Field:
         self._width += 1
 
     def remove_row(self) -> None:
+        """Удаляет нижнюю строку поля.
+        В случае, если на поле всего одна строка, выкидывает исключение
+        """
         if self._height == 1:
             raise RuntimeError("Cannot remove the last row")
         
@@ -155,6 +116,9 @@ class Field:
         self._height -= 1
 
     def remove_col(self) -> None:
+        """Удаляет правую колонку.
+        В случае, если на поле всего одна колонка, выкидывает исключение
+        """
         if self._width == 1:
             raise RuntimeError("Cannot remove the last column")
         
@@ -198,7 +162,8 @@ class Field:
 
                 self._cells_map['left_bottom'] = current_row
 
-    def robot(self):
+    def robot(self) -> Robot | None:
         for cell in self.cells():
             if (robot := cell.get_robot()) is not None:
                 return robot
+        return None
