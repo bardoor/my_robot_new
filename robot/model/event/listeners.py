@@ -1,6 +1,10 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
-from robot.model.field import Cell
+
+if TYPE_CHECKING:
+    from robot.model.field import Cell
 
 
 class RobotListener(ABC):

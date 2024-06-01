@@ -32,7 +32,7 @@ class Robot:
         self._cell = new_cell
 
         if (self._cell is not None) and (self is not new_cell.get_robot()):
-            old_cell.set_robot(self)
+            self._cell.set_robot(self)
 
     def step(self, direction: Direction) -> StepResult:
         if self._cell.has_wall(direction):
