@@ -1,9 +1,13 @@
+from typing import TYPE_CHECKING
+
 import pygame
 import sys
 
+from robot.ui import CellWidget
+
+
 from robot.model.field import Cell
-from robot.model.robot import Robot
-from robot.ui.field.cell_widget import CellWidget
+from robot.model.robot import Robot 
 
 
 pygame.init()

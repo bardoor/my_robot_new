@@ -1,0 +1,1 @@
+from robot.ui.core.widget import Widget

@@ -1,10 +1,15 @@
-from typing import override
+from __future__ import annotations
+from typing import override, TYPE_CHECKING
 
 import pygame as pg
 
-from robot.model.field import Cell
 from robot.model.event.listeners import CellListener
-from robot.ui.field.widget import Widget
+from robot.ui.core.widget import Widget
+
+
+if TYPE_CHECKING:
+    from robot.model.field import Cell
+    from robot.model.robot import Robot
 
 
 class CellWidget(Widget, CellListener):
@@ -31,15 +36,15 @@ class CellWidget(Widget, CellListener):
         return surface
 
     @override
-    def on_cell_got_painted(self) -> None:
+    def on_cell_got_painted(self, cell: Cell) -> None:
         self._surface.fill(CellWidget.PAINTED_COLOR)
 
     @override
-    def on_robot_left_cell(self) -> None:
+    def on_robot_left_cell(self, robot: Robot, left_cell: Cell) -> None:
         self._surface = self._make_cell_surface()
 
     @override
-    def on_robot_arrived_in_cell(self) -> None:
+    def on_robot_arrived_in_cell(self, robot: Robot, arrived_cell: Cell) -> None:
         center = (CellWidget.CELL_SIZE // 2, CellWidget.CELL_SIZE // 2)
         self._surface.blit(self._item_widget.render(), center)
 

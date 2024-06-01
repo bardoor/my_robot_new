@@ -1,10 +1,14 @@
-from typing import override
+from __future__ import annotations
+from typing import override, TYPE_CHECKING
 
 import pygame as pg
 
-from robot.model.field import Robot, Field
-from robot.model.event.listeners import RobotListener
-from robot.ui.field.widget import Widget
+from robot.model.event import RobotListener
+from robot.ui.core import Widget
+
+
+if TYPE_CHECKING:
+    from robot.model.field import Robot, Field
 
 
 class FieldWidget(Widget, RobotListener):

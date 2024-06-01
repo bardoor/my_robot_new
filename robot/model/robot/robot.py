@@ -31,7 +31,7 @@ class Robot:
 
         self._cell = new_cell
 
-        if (self._cell is not None) and (self is not new_cell.get_robot()):
+        if (self._cell is not None) and (self is not new_cell.robot()):
             self._cell.set_robot(self)
 
     def step(self, direction: Direction) -> StepResult:

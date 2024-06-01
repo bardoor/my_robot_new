@@ -94,7 +94,7 @@ class Cell:
     def neighbors(self) -> dict[Direction, Cell]:
         return self._neighbors
 
-    def get_robot(self) -> Robot | None:
+    def robot(self) -> Robot | None:
         return self._robot
 
     def set_robot(self, new_robot: Robot | None) -> None:
@@ -129,12 +129,12 @@ class Cell:
 
     def _fire_robot_left_cell(self) -> None:
         for listener in self._listeners:
-            listener.on_robot_left_cell()
+            listener.on_robot_left_cell(self.robot(), self)
 
     def _fire_robot_arrived_in_cell(self) -> None:
         for listener in self._listeners:
-            listener.on_robot_arrived_in_cell()
+            listener.on_robot_arrived_in_cell(self.robot(), self)
 
     def _fire_cell_got_painted(self) -> None:
         for listener in self._listeners:
-            listener.on_cell_got_painted()
+            listener.on_cell_got_painted(self)
