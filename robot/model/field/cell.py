@@ -3,6 +3,7 @@ import typing
 
 from robot.model.field.wall import Wall
 from robot.model.direction import Direction
+from robot.model.event.listeners import CellListener
 
 
 # Чтобы избежать циклического импорта...
@@ -15,12 +16,14 @@ class Cell:
     _walls: dict[Direction, Wall]
     _robot: Robot
     _neighbors: dict[Direction, Cell]
+    _listeners: list[CellListener]
 
     def __init__(self):
         self._paints_count = 0
         self._walls = {}
         self._neighbors = {}
         self._robot = None
+        self._listeners = []
 
     def has_wall(self, direction: Direction) -> bool:
         return self.get_wall(direction) is not None
@@ -99,12 +102,14 @@ class Cell:
             old_robot = self._robot
             self._robot = None
             old_robot.set_cell(None)
+            self._fire_robot_left_cell()
             return
 
         self._robot = new_robot
 
         if (self._robot is not None) and (self is not new_robot.get_cell()):
             new_robot.set_cell(self)
+            self._fire_robot_arrived_in_cell()
 
     def is_painted(self) -> bool:
         return self._paints_count > 0
@@ -114,3 +119,22 @@ class Cell:
 
     def paint(self) -> None:
         self._paints_count += 1
+        self._fire_cell_got_painted()
+
+    def add_listener(self, listener: CellListener) -> None:
+        self._listeners.append(listener)
+
+    def remove_listener(self, listener: CellListener) -> None:
+        self._listeners.remove(listener)
+
+    def _fire_robot_left_cell(self) -> None:
+        for listener in self._listeners:
+            listener.on_robot_left_cell()
+
+    def _fire_robot_arrived_in_cell(self) -> None:
+        for listener in self._listeners:
+            listener.on_robot_arrived_in_cell()
+
+    def _fire_cell_got_painted(self) -> None:
+        for listener in self._listeners:
+            listener.on_cell_got_painted()

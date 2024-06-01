@@ -40,6 +40,9 @@ class FieldSerializer:
         return None
     
     def dump_field(self, file_name: str | Path) -> None:
+        if isinstance(file_name, str) and not file_name.endswith('.json'):
+            file_name = f'{file_name}.json'
+
         env_config = {'height': self._field.height(), 'width': self._field.width()}
         walls = self._get_walls()
         env_config['walls'] = walls

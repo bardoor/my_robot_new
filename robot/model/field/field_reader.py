@@ -9,11 +9,14 @@ from robot.model.direction import Direction
 
 class FieldReader:
     
-    def __init__(self, env_file: str) -> None:
-        self._load(env_file)
+    def __init__(self, file_name: str) -> None:
+        self._load(file_name)
 
-    def _load(self, env_file: str) -> None:
-        path = Path(env_file)
+    def _load(self, file_name: str | Path) -> None:
+        if isinstance(file_name, str) and not file_name.endswith(".json"):
+            file_name = f"{file_name}.json"
+
+        path = Path(file_name)
         if not path.exists() or not path.is_file() or path.suffix != ".json":
             raise ValueError(".json file was expected as an environment file")
         
