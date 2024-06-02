@@ -49,6 +49,12 @@ class FieldWidget(Widget, RobotListener):
                 y = row * CellWidget.CELL_SIZE + row * WallWidget.WIDTH
                 field_surface.blit(cell_widget.render(), (x, y))
 
+                # Особенность отрисовки стен заключается в следующем:
+                # Если имееются две клетки, A и B, которые являются соседями друг друга,
+                # причем клетка A сосед B с севера, то значит, что B сосед A с юга.
+                # Пусть между ними стоит стена. Цикл ниже будет отрисовывать одну и ту же стену два раза:
+                # сначала, как с севереного направления клетки A, а потом как с южного направления клетки B.
+                # Является ли это багом или фичей вопрос открытый, но отрисовка выглядит хорошо
                 for direction, wall in cell.walls().items():
                     wall_widget = self._widget_factory.create(wall)
                     match direction:
