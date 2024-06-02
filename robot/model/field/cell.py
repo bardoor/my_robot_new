@@ -97,6 +97,9 @@ class Cell:
     def robot(self) -> Robot | None:
         return self._robot
 
+    def has_robot(self) -> bool:
+        return self.robot() is not None
+
     def set_robot(self, new_robot: Robot | None) -> None:
         if new_robot is None and self._robot is not None:
             old_robot = self._robot

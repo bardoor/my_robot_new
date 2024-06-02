@@ -30,13 +30,13 @@ class RobotWidget(Widget, RobotListener):
         return self._surface
 
     @override
-    def on_robot_moved(self, from_cell: Cell, to_cell: Cell) -> None:
-        pass
+    def on_robot_moved(self, robot: Robot, from_cell: Cell, to_cell: Cell) -> None:
+        ...
 
     @override
-    def on_robot_not_moved(self) -> None:
-        pass
+    def on_robot_not_moved(self, robot: Robot) -> None:
+        ...
 
     @override
-    def on_robot_painted_cell(self) -> None:
-        pass
+    def on_robot_painted_cell(self, robot: Robot, painted_cell: Cell) -> None:
+        ...

@@ -164,6 +164,6 @@ class Field:
 
     def robot(self) -> Robot | None:
         for cell in self.cells():
-            if (robot := cell.get_robot()) is not None:
+            if (robot := cell.robot()) is not None:
                 return robot
         return None

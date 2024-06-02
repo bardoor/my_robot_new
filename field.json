@@ -1,6 +1,6 @@
 {
-    "height": 10,
-    "width": 10,
+    "height": 3,
+    "width": 3,
     "robot": {"x": 0, "y": 0},
     "painted": [
         {"x": 0, "y": 1}

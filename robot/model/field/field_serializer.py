@@ -35,7 +35,7 @@ class FieldSerializer:
     def _get_robot_pos(self) -> tuple[int, int] | None:
         for x in range(self._field.width()):
             for y in range(self._field.height()):
-                if self._field.get_cell(x, y).get_robot() is not None:
+                if self._field.get_cell(x, y).robot() is not None:
                     return {'x': x, 'y': y}
         return None
     
