@@ -4,8 +4,9 @@ from functools import singledispatchmethod
 
 from robot.ui.cell_widget import CellWidget
 from robot.ui.robot_widget import RobotWidget
+from robot.ui.wall_widget import WallWidget
 from robot.ui.core import Widget
-from robot.model.field import Cell
+from robot.model.field import Cell, Wall
 from robot.model.robot import Robot
 
 
@@ -14,6 +15,7 @@ class WidgetFactory:
     def __init__(self) -> None:
         self._cells = {}
         self._robot = {}
+        self._walls = {}
 
     @singledispatchmethod
     def create(self, obj: Any) -> Widget:
@@ -40,4 +42,13 @@ class WidgetFactory:
         robot_widget = RobotWidget(obj)
         self._robot[obj] = robot_widget
         return robot_widget
+    
+    @create.register
+    def _(self, obj: Wall) -> WallWidget:
+        if obj in self._walls:
+            return self._walls[obj]
+        
+        wall_widget = WallWidget(obj)
+        self._walls[obj] = wall_widget
+        return wall_widget
     
