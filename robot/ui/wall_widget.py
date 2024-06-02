@@ -20,6 +20,7 @@ class WallWidget(Widget):
     def __init__(self, wall: Wall) -> None:
         self._wall = wall
         self._direction = self._wall.direction()
+
     @override
     def size(self) -> tuple[int, int]:
         return (WallWidget.WIDTH, WallWidget.LENGTH)
