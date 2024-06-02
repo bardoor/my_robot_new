@@ -17,9 +17,6 @@ if TYPE_CHECKING:
 
 
 class FieldWidget(Widget, RobotListener):
-    # Зазор между клетками.
-    # TODO: должна быть ширина (высота?) стены
-    GAP = 10
 
     def __init__(self, field: Field) -> None:
         self._field = field
@@ -28,7 +25,7 @@ class FieldWidget(Widget, RobotListener):
         if self._field.robot() is not None:
             self._field.robot().add_listener(self)
 
-    def _make_field_surface(self):
+    def _make_field_surface(self) -> pg.Surface:
         pixel_height = (
             self._field.height() * CellWidget.CELL_SIZE
             + (self._field.height() - 1) * WallWidget.WIDTH
@@ -74,6 +71,7 @@ class FieldWidget(Widget, RobotListener):
 
         return field_surface
     
+    @override
     def size(self) -> tuple[int, int]:
         pixel_width = self._field.width() * CellWidget.CELL_SIZE + (self._field.width() - 1) * WallWidget.WIDTH
         pixel_height = self._field.height() * CellWidget.CELL_SIZE + (self._field.height() - 1) * WallWidget.WIDTH
