@@ -40,9 +40,18 @@ class CellWidget(Widget, CellListener):
         surface.fill(
             CellWidget.PAINTED_COLOR if self._cell.is_painted() else CellWidget.UNPAINTED_COLOR
         )
+
         if self._item_widget is not None:
-            center = (CellWidget.CELL_SIZE // 2, CellWidget.CELL_SIZE // 2)
+            # (x, y)
+            center = [CellWidget.CELL_SIZE // 2, CellWidget.CELL_SIZE // 2]
+            
+            # Сдвигаем координаты так, чтобы отрисовать виджет айтема по центру
+            item_size = self._item_widget.size()
+            center[0] -= item_size[0] // 2
+            center[1] -= item_size[1] // 2
+
             surface.blit(self._item_widget.render(), center)
+
         return surface
 
     @override
