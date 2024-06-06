@@ -4,14 +4,15 @@ import sys
 from robot.model.field import load_field, dump_field
 from robot.model.direction import Direction
 from robot.ui import FieldWidget
-
+from robot.ui.backing_widget import BackingWidget
 
 pygame.init()
 
 field = load_field("field")
 field_widget = FieldWidget(field)
+backing_widget = BackingWidget(field_widget)
 
-screen = pygame.display.set_mode(field_widget.size())
+screen = pygame.display.set_mode(backing_widget.size())
 
 while True:
     for event in pygame.event.get():
@@ -31,5 +32,5 @@ while True:
             elif event.key == pygame.K_SPACE:
                 field.robot().paint()
     
-    screen.blit(field_widget.render(), (0, 0))
+    screen.blit(backing_widget.render(), (0, 0))
     pygame.display.flip()
