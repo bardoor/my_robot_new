@@ -3,16 +3,8 @@ from typing import override, TYPE_CHECKING
 
 import pygame as pg
 
-from robot.model.event import RobotListener
-from robot.model.direction import Direction
 from robot.ui.core import Widget
-from robot.ui.cell_widget import CellWidget
 from robot.ui.field_widget import FieldWidget
-from robot.ui.widget_factory import WidgetFactory
-
-if TYPE_CHECKING:
-    from robot.model.field import Field, Cell
-    from robot.model.robot import Robot
 
 
 class BackingWidget(Widget):
