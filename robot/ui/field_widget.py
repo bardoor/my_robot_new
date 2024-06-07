@@ -17,6 +17,13 @@ if TYPE_CHECKING:
 
 class FieldWidget(Widget, RobotListener):
     def __init__(self, field: Field) -> None:
+        self._widgets = None
+        self._widget_factory = None
+        self._field = None
+        self._edit_mode = None
+        self.set_field(field)
+
+    def set_field(self, field: Field):
         self._field = field
         self._widget_factory = WidgetFactory()
         self._widgets = {}
@@ -124,12 +131,12 @@ class FieldWidget(Widget, RobotListener):
                 self._field.add_row()
             elif event.key == pg.K_c:
                 self._field.add_col()
+
         elif event.type == pg.MOUSEBUTTONDOWN:
             pos = event.pos
             clicked_widget = self._get_widget(pos)
             if clicked_widget is not None:
                 self._get_widget(pos).handle_event(event)
-
 
     def _get_widget(self, pos: tuple[int, int]):
         for widget, widget_pos in self._widgets.items():
