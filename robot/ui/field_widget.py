@@ -36,6 +36,7 @@ class FieldWidget(Widget, RobotListener):
 
         field_surface = pg.Surface((pixel_width, pixel_height))
 
+        seen_walls = set()
         for row in range(self._field.height()):
             for col in range(self._field.width()):
                 cell = self._field.get_cell(col, row)
@@ -52,7 +53,11 @@ class FieldWidget(Widget, RobotListener):
                 # Пусть между ними стоит стена. Цикл ниже будет отрисовывать одну и ту же стену два раза:
                 # сначала, как с севереного направления клетки A, а потом как с южного направления клетки B.
                 # Является ли это багом или фичей вопрос открытый, но отрисовка выглядит хорошо
+                # UPDATE: исправлено... 
                 for direction, wall in cell.walls().items():
+                    if wall in seen_walls:
+                        continue
+                    seen_walls.add(wall)
                     wall_widget = self._widget_factory.create(wall)
                     match direction:
                         case Direction.NORTH:

@@ -1,46 +1,49 @@
 import time, threading
 
-from model.field.field import Field
-from model.robot.robot_command import *
+from robot.model.field.field import Field
+from robot.model.robot.robot_command import *
+from robot.model.field import load_field
 
 
 class Program:
-    def __init__(self):
-        self.__commands = []
-        self.__current = 0
-        self.__timer = None
-        self.__results = []
-        self.__execution_listeners = []
-        self.__field = None
 
-    def add_command(self, command: RobotCommand):
-        command.set_robot(self.__field.robot)
-        self.__commands.append(command)
+    def __init__(self) -> None:
+        self._commands = []
+        self._current = 0
+        self._timer = None
+        self._execution_listeners = []
+        self._field = None
 
-    def get_results(self):
-        return self.__results
+    def load_field(self, file_name: str) -> None:
+        self._field = load_field(file_name)
 
-    def start_execution(self, interval: float):
-        self.__field = Field("C:\\Projects\\my_robot_new\\model\\sample_environment.xml")
-        self.__timer = threading.Timer(interval, self.__execute_current)
-        self.__timer.start()
+    def field(self) -> Field | None:
+        return self._field
 
-    def __execute_current(self):
-        if self.__current >= len(self.__commands):
-            return None
+    def add_command(self, command: RobotCommand) -> None:
+        command.set_robot(self._field.robot())
+        self._commands.append(command)
 
-        result = self.__commands[self.__current].execute()
+    def start_execution(self, interval: float) -> None:
+        self._timer = threading.Timer(interval, self._execute_current)
+        self._timer.start()
+
+    def _execute_current(self) -> None: 
+        if self._current >= len(self._commands):
+            return
+
+        result = self._commands[self._current].execute()
         self.fire_command_executed(result)
-        self.__current += 1
+        self._current += 1
 
-    def __end_execution(self):
+    def end_execution(self) -> None:
         if self.__timer is None:
-            return None
-        self.__timer.cancel()
+            return
+        self._timer.cancel()
 
-    def add_listener(self, listener):
-        self.__execution_listeners.append(listener)
+    def add_listener(self, listener) -> None:
+        self._execution_listeners.append(listener)
 
-    def fire_command_executed(self, result):
-        for listener in self.__execution_listeners:
+    def fire_command_executed(self, result) -> None:
+        for listener in self._execution_listeners:
             listener.command_executed(result)

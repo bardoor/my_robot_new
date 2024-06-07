@@ -1,2 +1,1 @@
-from .robot import Robot
-from .robot_command import *
+from robot.model.robot.robot import Robot

@@ -1,5 +1,6 @@
-from ..direction import Direction
 from abc import ABC
+
+from robot.model.direction import Direction
 
 
 class RobotCommand(ABC):

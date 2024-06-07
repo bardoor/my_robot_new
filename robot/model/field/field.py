@@ -1,10 +1,12 @@
-from typing import Iterable
-import json
+from __future__ import annotations
+from typing import Iterable, TYPE_CHECKING
 
 from robot.model.field.cell import Cell
 from robot.model.direction import Direction
-from robot.model.robot import Robot
 
+
+if TYPE_CHECKING:
+    from robot.model.robot import Robot
 
 class Field:
 
