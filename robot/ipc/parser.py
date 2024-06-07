@@ -1,5 +1,10 @@
-from model.robot.robot_command import *
-from model.direction import Direction
+from robot.model.robot.robot_command import (
+    RobotCommand,
+    Step,
+    Paint,
+    CheckWall,
+)
+from robot.model.direction import Direction
 
 
 def parse(json_data) -> RobotCommand:

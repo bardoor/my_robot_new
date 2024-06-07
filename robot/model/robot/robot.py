@@ -1,9 +1,12 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 from enum import Enum
 
-from ..direction import Direction
-from ..field.cell import Cell
-from robot.model.event import RobotListener
+
+if TYPE_CHECKING:
+    from robot.model.direction import Direction
+    from robot.model.field.cell import Cell
+    from robot.model.event import RobotListener
 
 
 class StepResult(Enum):

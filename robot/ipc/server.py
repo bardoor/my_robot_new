@@ -2,10 +2,13 @@ from __future__ import annotations
 import socket
 import os
 
-from .config import Config
-from .parser import parse
-from model.program import Program
-from .socket_json import send_json, recv_json
+from robot.ipc.config import Config
+from robot.ipc.parser import parse
+from robot.model.program import Program
+from robot.ipc.socket_json import send_json, recv_json
+
+from robot.ui.gui import GUI
+from robot.ui import *
 
 
 class Server:
@@ -18,6 +21,7 @@ class Server:
         self._server.listen(1)
         self._client = None
         self._client_addr = None
+        self._gui = None
         self.__log_file = open(os.path.dirname(os.path.abspath(__file__)) + '\log.txt', 'w')
 
     def has_client(self):
@@ -28,13 +32,22 @@ class Server:
 
     def run(self):
         self.accept()
-        self._program.start_execution(3)
-
+        
         while True:
             command = recv_json(self._client)
-            if 'command' in command and 'quit' == command['command']:
-                break
-            self._program.add_command(parse(command))
+            match command:
+                case {'command': 'quit'}:
+                    if self._gui is not None:
+                        self._gui.kill()
+                    break
+                case {'command': 'load', 'field': file_name}:
+                    self._program.load_field(file_name)
+                    field_widget = FieldWidget(self._program.field())
+                    main_window = MainWindow(BackingWidget(field_widget))
+                    self._gui = GUI(main_window)
+                    self._program.start_execution(3)
+                case {'command': _}:
+                    self._program.add_command(parse(command))
 
         self.close()
 
