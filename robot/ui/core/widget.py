@@ -11,4 +11,12 @@ class Widget(ABC):
 
     @abstractmethod
     def render(self) -> pg.Surface:
-        ... 
+        ...
+
+    @abstractmethod
+    def update(self):
+        ...
+
+    @abstractmethod
+    def on_click(self):
+        ...
