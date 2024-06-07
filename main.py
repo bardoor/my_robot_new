@@ -23,17 +23,7 @@ while True:
             pygame.quit()
             sys.exit()
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                field.robot().step(Direction.WEST)
-            elif event.key == pygame.K_UP:
-                field.robot().step(Direction.NORTH)
-            elif event.key == pygame.K_DOWN:
-                field.robot().step(Direction.SOUTH)
-            elif event.key == pygame.K_RIGHT:
-                field.robot().step(Direction.EAST)
-            elif event.key == pygame.K_SPACE:
-                field.robot().paint()
-            elif event.key == pygame.K_s:
+            if event.key == pygame.K_s:
                 filename = fd.asksaveasfilename(title="Сохранить обстановку", filetypes=(('Файл обстановки', '.json'),))
                 dump_field(field, filename)
             elif event.key == pygame.K_o:

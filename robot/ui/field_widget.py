@@ -22,6 +22,7 @@ class FieldWidget(Widget, RobotListener):
         self._widget_factory = None
         self._field = None
         self._edit_mode = None
+        self._freeze_mode = None
         self.set_field(field)
 
     def set_field(self, field: Field):
@@ -29,7 +30,9 @@ class FieldWidget(Widget, RobotListener):
         self._widget_factory = WidgetFactory()
         self._widgets = {}
         self._edit_mode = False
+        self._freeze_mode = False
 
+        print(self._field.robot())
         if self._field.robot() is not None:
             self._field.robot().add_listener(self)
 
@@ -103,9 +106,15 @@ class FieldWidget(Widget, RobotListener):
         from_cell_widget.remove_item_widget(robot_widget)
         to_cell_widget.add_item_widget(robot_widget)
 
+    def freeze(self):
+        self._freeze_mode = True
+
+    def unfreeze(self):
+        self._freeze_mode = False
+
     @override
     def on_robot_crashed(self, robot: Robot) -> None:
-        pass
+        self.freeze()
 
     @override
     def on_robot_painted_cell(self, robot: Robot, painted_cell: Cell) -> None:
@@ -117,8 +126,22 @@ class FieldWidget(Widget, RobotListener):
 
     @override
     def handle_event(self, event: pg.event.Event):
-        if event.type == pg.KEYDOWN and event.key == pg.K_e:
-            self.set_edit_mode(not self._edit_mode)
+        if self._freeze_mode is True:
+            return
+
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_e:
+                self.set_edit_mode(not self._edit_mode)
+            elif event.key == pg.K_LEFT:
+                self._field.robot().step(Direction.WEST)
+            elif event.key == pg.K_UP:
+                self._field.robot().step(Direction.NORTH)
+            elif event.key == pg.K_DOWN:
+                self._field.robot().step(Direction.SOUTH)
+            elif event.key == pg.K_RIGHT:
+                self._field.robot().step(Direction.EAST)
+            elif event.key == pg.K_SPACE:
+                self._field.robot().paint()
 
         if self._edit_mode is False:
             return
