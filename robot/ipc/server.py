@@ -1,28 +1,34 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 import socket
 import os
+import sys
 
 from robot.ipc.config import Config
 from robot.ipc.parser import parse
-from robot.model.program import Program
 from robot.ipc.socket_json import send_json, recv_json
-
 from robot.ui.gui import GUI
 from robot.ui import *
+from robot.model.program import Program
+from robot.model.robot.robot import StepResult
+from robot.model.robot.robot_command import *
+
+
+sys.stderr = open(os.path.dirname(os.path.realpath(__file__)) + '\\err.txt', 'w')
 
 
 class Server:
 
     def __init__(self):
         self._program = Program()
-        self._program.add_listener(self)
+        #self._program.add_listener(self)
         self._server = socket.socket()
         self._server.bind((Config.HOST, Config.PORT))
         self._server.listen(1)
         self._client = None
         self._client_addr = None
         self._gui = None
-        self.__log_file = open(os.path.dirname(os.path.abspath(__file__)) + '\log.txt', 'w')
+        self.__log_file = open(os.path.dirname(os.path.realpath(__file__)) + '\\log.txt', 'w')
 
     def has_client(self):
         return self._client is not None
@@ -35,25 +41,58 @@ class Server:
         
         while True:
             command = recv_json(self._client)
+
             match command:
                 case {'command': 'quit'}:
                     if self._gui is not None:
                         self._gui.kill()
+                        send_json(self._client, {"info": "window closed"})
                     break
                 case {'command': 'load', 'field': file_name}:
                     self._program.load_field(file_name)
                     field_widget = FieldWidget(self._program.field())
                     main_window = MainWindow(BackingWidget(field_widget))
                     self._gui = GUI(main_window)
-                    self._program.start_execution(3)
+                    self._program.start_execution(1.5)
+                    send_json(self._client, {"info": "window opened"})
                 case {'command': _}:
-                    self._program.add_command(parse(command))
+                    parsed_command = parse(command)
+                    self._program.add_command(parsed_command)
+                    result = self._program.get()
+                    self.command_executed(parsed_command, result)
+                case _:
+                    raise ValueError
 
         self.close()
 
-    def command_executed(self, result):
-        print(str(result), file=self.__log_file)
-        send_json(self._client, {"status": result})
+    def command_executed(self, command: RobotCommand, result=None) -> None:
+        robot_status = None
+        command_type = None
+
+        if isinstance(command, Step):
+            command_type = "step"
+            match result:
+                case StepResult.OK:
+                    robot_status = "alive"
+                case StepResult.NOT_MOVED, StepResult.HIT_WALL:
+                    robot_status = "crashed"
+                case _:
+                    raise ValueError
+        elif isinstance(command, Paint):
+            command_type = "paint"
+            robot_status = "alive"
+        elif isinstance(command, CheckWall):
+            command_type = "is_wall"
+            robot_status = "alive"
+        else:
+            raise ValueError
+
+        response = {"robot": robot_status, "command_type": command_type}
+        # Отвратительно...
+        if isinstance(result, bool):
+            response["result"] = result
+
+        send_json(self._client, response)
 
     def close(self):
         if self._client is not None:

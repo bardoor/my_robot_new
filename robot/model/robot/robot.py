@@ -83,5 +83,3 @@ class Robot:
     def _fire_on_robot_painted_cell(self, painted_cell: Cell) -> None:
         for listener in self._listeners:
             listener.on_robot_painted_cell(self, painted_cell)
-
-

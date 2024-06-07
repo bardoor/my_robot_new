@@ -52,8 +52,9 @@ class Sender:
         if not self.is_connected():
             raise ConnectionError('Unconnected to server')
         send_json(self._client, data)
+        answer = recv_json(self._client)
         if need_answer:
-            return recv_json(self._client)
+            return answer
 
     def close(self) -> None:
         if self._client is not None:

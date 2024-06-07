@@ -5,6 +5,7 @@ from robot.model.robot.robot_command import (
     CheckWall,
 )
 from robot.model.direction import Direction
+from robot.model.robot.robot import StepResult
 
 
 def parse(json_data) -> RobotCommand:
@@ -19,3 +20,7 @@ def parse(json_data) -> RobotCommand:
             return CheckWall(Direction.from_str(json_data['direction']))
         case unsupported:
             raise RuntimeError(f'Unsupported command: {unsupported}')
+        
+
+def unparse(data) -> dict:
+    pass
