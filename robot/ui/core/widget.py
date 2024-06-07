@@ -20,3 +20,6 @@ class Widget(ABC):
     @abstractmethod
     def handle_event(self, event: pg.event.Event):
         ...
+
+    def collidepoint(self, topleft: tuple[int, int], point: tuple[int, int]) -> bool:
+        return self.render().get_rect(topleft=topleft).collidepoint(point[0], point[1])

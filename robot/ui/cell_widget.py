@@ -5,6 +5,7 @@ import pygame as pg
 
 from robot.model.event.listeners import CellListener
 from robot.ui.core.widget import Widget
+from robot.ui.robot_widget import RobotWidget
 
 
 if TYPE_CHECKING:
@@ -21,6 +22,13 @@ class CellWidget(Widget, CellListener):
         self._cell = cell
         self._cell.add_listener(self)
         self._item_widget = None
+
+    def cell(self) -> Cell:
+        return self._cell
+
+    def remove_robot_widget(self):
+        if isinstance(self._item_widget, RobotWidget):
+            self._item_widget = None
 
     def add_item_widget(self, widget: Widget) -> None:
         if self._item_widget is not None:
@@ -76,5 +84,10 @@ class CellWidget(Widget, CellListener):
 
     @override
     def handle_event(self, event: pg.event.Event):
-        pass
-    
+        if event.type == pg.MOUSEBUTTONDOWN:
+            if event.button == 1:  # Левая кнопка мыши
+                if self._cell.is_painted():
+                    self._cell.unpaint()
+                else:
+                    self._cell.paint()
+

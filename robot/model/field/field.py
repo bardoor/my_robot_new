@@ -4,9 +4,9 @@ from typing import Iterable, TYPE_CHECKING
 from robot.model.field.cell import Cell
 from robot.model.direction import Direction
 
-
 if TYPE_CHECKING:
     from robot.model.robot import Robot
+
 
 class Field:
 
@@ -14,6 +14,7 @@ class Field:
         self._validate(width, height)
         self._width = width
         self._height = height
+        self._edit_mode = False
 
         self._left_top_cell = None
         self._cells_map = {}
@@ -30,7 +31,7 @@ class Field:
 
     def width(self) -> int:
         return self._width
-    
+
     def height(self) -> int:
         return self._height
 
@@ -41,7 +42,7 @@ class Field:
             raise ValueError(f'"x" must be in range 0..{self._width - 1}')
         if y < 0 or y >= self._height:
             raise ValueError(f'"y" must be in range 0..{self._height - 1}')
-        
+
         current_x, current_y = x, y
 
         current_cell = self._left_top_cell
@@ -69,8 +70,17 @@ class Field:
 
         return visited
 
+    def in_edit_mode(self):
+        return self._edit_mode
+
+    def set_edit_mode(self, value: bool):
+        self._edit_mode = value
+
     def add_row(self) -> None:
         """Добавляет новую строку снизу"""
+        if not self.in_edit_mode():
+            return
+
         new_row = Cell()
         self._cells_map['left_bottom'].set_neighbor(Direction.SOUTH, new_row)
         self._cells_map['left_bottom'] = new_row
@@ -84,6 +94,9 @@ class Field:
 
     def add_col(self) -> None:
         """Добавляет новую колонку справа"""
+        if not self.in_edit_mode():
+            return
+
         new_col = Cell()
         self._cells_map['right_top'].set_neighbor(Direction.EAST, new_col)
         self._cells_map['right_top'] = new_col
@@ -92,22 +105,26 @@ class Field:
             next_cell = Cell()
             new_col.set_neighbor(Direction.SOUTH, next_cell)
             new_col = next_cell
-        
+
         self._width += 1
 
     def remove_row(self) -> None:
         """Удаляет нижнюю строку поля.
         В случае, если на поле всего одна строка, выкидывает исключение
         """
+        if not self.in_edit_mode():
+            return
+
         if self._height == 1:
-            raise RuntimeError("Cannot remove the last row")
-        
+            return
+            # raise RuntimeError("Cannot remove the last row")
+
         need_to_remove = []
         for i in range(self._width):
             need_to_remove.append(self.get_cell(i, self._height - 1))
-            if need_to_remove[-1].get_robot() is not None:
+            if need_to_remove[-1].has_robot():
                 raise RuntimeError("Cannot remove cell with the robot")
-        
+
         # Возможно тут надо как-то более хитро удалять, чтобы не было
         # висячих ссылок или типа того, но как же мне лень в этом разбираться...
         for cell in need_to_remove:
@@ -121,20 +138,24 @@ class Field:
         """Удаляет правую колонку.
         В случае, если на поле всего одна колонка, выкидывает исключение
         """
+        if not self.in_edit_mode():
+            return
+
         if self._width == 1:
-            raise RuntimeError("Cannot remove the last column")
-        
+            return None
+            # raise RuntimeError("Cannot remove the last column")
+
         need_to_remove = []
         for i in range(self._height):
             need_to_remove.append(self.get_cell(self._width - 1, i))
-            if need_to_remove[-1].get_robot() is not None:
+            if need_to_remove[-1].has_robot():
                 raise RuntimeError("Cannot remove cell with the robot")
-        
+
         # Возможно тут надо как-то более хитро удалять, чтобы не было
         # висячих ссылок или типа того, но как же мне лень в этом разбираться...
         for cell in need_to_remove:
             cell.set_neighbor(Direction.WEST, None)
-        
+
         self._cells_map['right_top'] = self.get_cell(self._width - 2, 0)
 
         self._width -= 1
@@ -154,7 +175,7 @@ class Field:
                 current_col.set_neighbor(Direction.EAST, next_cell)
                 current_col = next_cell
 
-                if i == 0 and j == self._width-1:
+                if i == 0 and j == self._width - 1:
                     self._cells_map['right_top'] = current_col
 
             if i + 1 < self._height:

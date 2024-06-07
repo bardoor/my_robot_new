@@ -53,5 +53,9 @@ class Direction(Enum):
             case "west":
                 return Direction.WEST
 
+    @staticmethod
+    def every():
+        return [Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST]
+
     def __str__(self) -> str:
         return self.value

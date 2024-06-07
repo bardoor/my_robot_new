@@ -34,7 +34,10 @@ class BackingWidget(Widget):
 
     @override
     def handle_event(self, event: pg.event.Event):
-        pass
+        if hasattr(event, "pos"):
+            event.pos = (event.pos[0] - BackingWidget.MARGIN // 2,
+                         event.pos[1] - BackingWidget.MARGIN // 2)
+        self._field.handle_event(event)
 
     @override
     def update(self):

@@ -14,15 +14,17 @@ if TYPE_CHECKING:
 
 class RobotWidget(Widget, RobotListener):
     ROBOT_SIZE = 20
-    ROBOT_COLOR = pg.color.THECOLORS['darkgreen']
+    ROBOT_ALIVE_COLOR = pg.color.THECOLORS['darkgreen']
+    ROBOT_CRASHED_COLOR = pg.color.THECOLORS['red']
 
     def __init__(self, robot: Robot) -> None:
         self._robot = robot
         self._robot.add_listener(self)
+        self._robot_alive = True
 
     def _make_robot_surface(self) -> pg.Surface:
         surface = pg.Surface((RobotWidget.ROBOT_SIZE, RobotWidget.ROBOT_SIZE))
-        surface.fill(RobotWidget.ROBOT_COLOR)
+        surface.fill(RobotWidget.ROBOT_ALIVE_COLOR if self._robot_alive else RobotWidget.ROBOT_CRASHED_COLOR)
         return surface
 
     @override
@@ -35,8 +37,7 @@ class RobotWidget(Widget, RobotListener):
 
     @override
     def on_robot_crashed(self, robot: Robot) -> None:
-        RobotWidget.ROBOT_COLOR = pg.color.THECOLORS['black']
-        # Робат умир
+        self._robot_alive = False
 
     @override
     def on_robot_painted_cell(self, robot: Robot, painted_cell: Cell) -> None:
