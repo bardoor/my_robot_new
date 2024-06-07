@@ -18,5 +18,5 @@ class Widget(ABC):
         ...
 
     @abstractmethod
-    def on_click(self):
+    def handle_events(self, events: pg.event.Event):
         ...

@@ -69,4 +69,12 @@ class CellWidget(Widget, CellListener):
     @override
     def render(self) -> pg.Surface:
         return self._make_cell_surface()
+
+    @override
+    def update(self):
+        pass
+
+    @override
+    def handle_events(self, events: pg.event.Event):
+        pass
     

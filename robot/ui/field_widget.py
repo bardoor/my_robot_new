@@ -17,7 +17,6 @@ if TYPE_CHECKING:
 
 
 class FieldWidget(Widget, RobotListener):
-
     def __init__(self, field: Field) -> None:
         self._field = field
         self._widget_factory = WidgetFactory()
@@ -95,4 +94,12 @@ class FieldWidget(Widget, RobotListener):
 
     @override
     def on_robot_painted_cell(self, robot: Robot, painted_cell: Cell) -> None:
+        pass
+
+    @override
+    def handle_events(self, events: pg.event.Event):
+        pass
+
+    @override
+    def update(self):
         pass

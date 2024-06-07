@@ -51,4 +51,4 @@ class WidgetFactory:
         wall_widget = WallWidget(obj)
         self._walls[obj] = wall_widget
         return wall_widget
-    
+

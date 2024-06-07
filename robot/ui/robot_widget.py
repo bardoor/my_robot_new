@@ -41,3 +41,11 @@ class RobotWidget(Widget, RobotListener):
     @override
     def on_robot_painted_cell(self, robot: Robot, painted_cell: Cell) -> None:
         ...
+
+    @override
+    def handle_events(self, events: pg.event.Event):
+        pass
+
+    @override
+    def update(self):
+        pass

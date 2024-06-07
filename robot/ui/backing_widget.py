@@ -31,3 +31,11 @@ class BackingWidget(Widget):
             surface.blit(self._field.render(), center)
 
         return surface
+
+    @override
+    def handle_events(self, events: pg.event.Event):
+        pass
+
+    @override
+    def update(self):
+        pass

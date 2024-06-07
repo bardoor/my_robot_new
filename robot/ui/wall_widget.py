@@ -36,4 +36,11 @@ class WallWidget(Widget):
         
         wall_surface.fill(WallWidget.COLOR)
         return wall_surface
-    
+
+    @override
+    def handle_events(self, events: pg.event.Event):
+        pass
+
+    @override
+    def update(self):
+        pass
