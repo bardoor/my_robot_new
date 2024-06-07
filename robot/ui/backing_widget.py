@@ -14,6 +14,9 @@ class BackingWidget(Widget):
     def __init__(self, field: FieldWidget):
         self._field = field
 
+    def field_widget(self) -> FieldWidget:
+        return self._field
+
     def render(self) -> pg.Surface:
         field_w, field_h = self._field.size()
         backing_w, backing_h = field_w + BackingWidget.MARGIN, field_h + BackingWidget.MARGIN

@@ -13,6 +13,12 @@ class MainWindow(Widget):
     def __init__(self, backing: BackingWidget):
         self._backing = backing
 
+    def field_widget(self) -> FieldWidget:
+        return self._backing.field_widget()
+
+    def field(self) -> Field:
+        return self._backing.field_widget().field()
+
     # Юзать будем когда роботом станет управлять программа а не стрелки
     def _handle_events(self):
         events = pg.event.get()

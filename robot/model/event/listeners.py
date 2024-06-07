@@ -1,7 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
-
+from robot.model.direction import Direction
 
 if TYPE_CHECKING:
     from robot.model.field import Cell
@@ -19,7 +19,7 @@ class RobotListener(ABC):
         ...
 
     @abstractmethod
-    def on_robot_crashed(self, robot: Robot) -> None:
+    def on_robot_crashed(self, robot: Robot, direction: Direction) -> None:
         ...
 
 
