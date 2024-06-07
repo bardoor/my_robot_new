@@ -32,6 +32,9 @@ while True:
                 field.robot().step(Direction.EAST)
             elif event.key == pygame.K_SPACE:
                 field.robot().paint()
-    
+        else:
+            main_window.handle_event(event)
+
+    main_window.update()
     screen.blit(main_window.render(), (0, 0))
     pygame.display.flip()

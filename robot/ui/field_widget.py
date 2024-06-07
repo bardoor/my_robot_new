@@ -10,7 +10,6 @@ from robot.ui.cell_widget import CellWidget
 from robot.ui.wall_widget import WallWidget
 from robot.ui.widget_factory import WidgetFactory
 
-
 if TYPE_CHECKING:
     from robot.model.field import Field, Cell
     from robot.model.robot import Robot
@@ -20,20 +19,21 @@ class FieldWidget(Widget, RobotListener):
     def __init__(self, field: Field) -> None:
         self._field = field
         self._widget_factory = WidgetFactory()
-        
+        self._widgets = {}
+
         if self._field.robot() is not None:
             self._field.robot().add_listener(self)
 
     def _make_field_surface(self) -> pg.Surface:
         pixel_height = (
-            self._field.height() * CellWidget.CELL_SIZE
-            + (self._field.height() - 1) * WallWidget.WIDTH
-            )
+                self._field.height() * CellWidget.CELL_SIZE
+                + (self._field.height() - 1) * WallWidget.WIDTH
+        )
         pixel_width = (
-            self._field.width() * CellWidget.CELL_SIZE
-            + (self._field.width() - 1) * WallWidget.WIDTH
-            )
-        
+                self._field.width() * CellWidget.CELL_SIZE
+                + (self._field.width() - 1) * WallWidget.WIDTH
+        )
+
         field_surface = pg.Surface((pixel_width, pixel_height))
 
         for row in range(self._field.height()):
@@ -43,6 +43,7 @@ class FieldWidget(Widget, RobotListener):
 
                 x = col * CellWidget.CELL_SIZE + col * WallWidget.WIDTH
                 y = row * CellWidget.CELL_SIZE + row * WallWidget.WIDTH
+                self._widgets[cell_widget] = (x, y)
                 field_surface.blit(cell_widget.render(), (x, y))
 
                 # Особенность отрисовки стен заключается в следующем:
@@ -66,10 +67,11 @@ class FieldWidget(Widget, RobotListener):
                         case Direction.EAST:
                             wall_x = x + WallWidget.LENGTH - WallWidget.WIDTH
                             wall_y = y
+                    self._widgets[wall_widget] = (wall_x, wall_y)
                     field_surface.blit(wall_widget.render(), (wall_x, wall_y))
 
         return field_surface
-    
+
     @override
     def size(self) -> tuple[int, int]:
         pixel_width = self._field.width() * CellWidget.CELL_SIZE + (self._field.width() - 1) * WallWidget.WIDTH
@@ -98,7 +100,14 @@ class FieldWidget(Widget, RobotListener):
 
     @override
     def handle_event(self, event: pg.event.Event):
-        pass
+        if event.type == pg.MOUSEBUTTONDOWN:
+            pos = event.pos
+            self._get_widget(pos).handle_event(event)
+
+    def _get_widget(self, pos: tuple[int, int]):
+        for widget, widget_pos in self._widgets.items():
+            if widget.collidepoint(widget_pos, pos):
+                return widget
 
     @override
     def update(self):

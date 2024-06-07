@@ -13,6 +13,7 @@ class MainWindow(Widget):
     def __init__(self, backing: BackingWidget):
         self._backing = backing
 
+    # Юзать будем когда роботом станет управлять программа а не стрелки
     def _handle_events(self):
         events = pg.event.get()
         for event in events:
@@ -25,4 +26,4 @@ class MainWindow(Widget):
         self._handle_events()
 
     def handle_event(self, event: pg.event.Event):
-        pass
+        self._backing.handle_event(event)

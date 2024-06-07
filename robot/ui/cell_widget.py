@@ -76,5 +76,6 @@ class CellWidget(Widget, CellListener):
 
     @override
     def handle_event(self, event: pg.event.Event):
-        pass
+        if event.type == pg.MOUSEBUTTONDOWN:
+            self._cell.paint()
     
