@@ -21,11 +21,11 @@ class Program:
         return self._field
 
     def add_command(self, command: RobotCommand) -> None:
-        command.set_robot(self._field.robot)
+        command.set_robot(self._field.robot())
         self._commands.append(command)
 
     def start_execution(self, interval: float) -> None:
-        self._timer = threading.Timer(interval, self.__execute_current)
+        self._timer = threading.Timer(interval, self._execute_current)
         self._timer.start()
 
     def _execute_current(self) -> None: 
