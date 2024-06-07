@@ -36,7 +36,6 @@ class RobotWidget(Widget, RobotListener):
     @override
     def on_robot_crashed(self, robot: Robot) -> None:
         RobotWidget.ROBOT_COLOR = pg.color.THECOLORS['black']
-        # Робат умир
 
     @override
     def on_robot_painted_cell(self, robot: Robot, painted_cell: Cell) -> None:

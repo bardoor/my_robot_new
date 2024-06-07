@@ -8,6 +8,7 @@ from robot.model.direction import Direction
 from robot.ui.core import Widget
 from robot.ui.cell_widget import CellWidget
 from robot.ui.wall_widget import WallWidget
+from robot.ui.robot_widget import RobotWidget
 from robot.ui.widget_factory import WidgetFactory
 
 if TYPE_CHECKING:
@@ -135,8 +136,22 @@ class FieldWidget(Widget, RobotListener):
         elif event.type == pg.MOUSEBUTTONDOWN:
             pos = event.pos
             clicked_widget = self._get_widget(pos)
-            if clicked_widget is not None:
-                self._get_widget(pos).handle_event(event)
+            if clicked_widget is None:
+                return
+
+            if event.button == 1:  # Левая кнопка мыши
+                clicked_widget.handle_event(event)
+            elif event.button == 3:  # Правая кнопка мыши
+                if isinstance(clicked_widget, CellWidget):
+                    self._remove_robot()
+                    self._field.robot().set_cell(clicked_widget.cell())
+                    clicked_widget.add_item_widget(self._widget_factory.create(self._field.robot()))
+
+    def _remove_robot(self):
+        for widget in self._widgets:
+            if isinstance(widget, CellWidget):
+                widget.remove_robot_widget()
+
 
     def _get_widget(self, pos: tuple[int, int]):
         for widget, widget_pos in self._widgets.items():
