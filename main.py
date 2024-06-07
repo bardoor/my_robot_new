@@ -13,7 +13,8 @@ field = load_field("field")
 field_widget = FieldWidget(field)
 main_window = MainWindow(BackingWidget(field_widget))
 
-screen = pygame.display.set_mode(main_window.size())
+size = main_window.size()
+screen = pygame.display.set_mode(size)
 
 while True:
     for event in pygame.event.get():
@@ -32,9 +33,21 @@ while True:
                 field.robot().step(Direction.EAST)
             elif event.key == pygame.K_SPACE:
                 field.robot().paint()
+            elif event.key == pygame.K_r and pygame.key.get_mods() & pygame.KMOD_CTRL:
+                field.remove_row()
+            elif event.key == pygame.K_c and pygame.key.get_mods() & pygame.KMOD_CTRL:
+                field.remove_col()
+            elif event.key == pygame.K_r:
+                field.add_row()
+            elif event.key == pygame.K_c:
+                field.add_col()
+
         else:
             main_window.handle_event(event)
 
     main_window.update()
+    if main_window.size() != size:
+        size = main_window.size()
+        screen = pygame.display.set_mode(main_window.size())
     screen.blit(main_window.render(), (0, 0))
     pygame.display.flip()

@@ -100,12 +100,13 @@ class Field:
         В случае, если на поле всего одна строка, выкидывает исключение
         """
         if self._height == 1:
-            raise RuntimeError("Cannot remove the last row")
+            return
+            # raise RuntimeError("Cannot remove the last row")
 
         need_to_remove = []
         for i in range(self._width):
             need_to_remove.append(self.get_cell(i, self._height - 1))
-            if need_to_remove[-1].get_robot() is not None:
+            if need_to_remove[-1].has_robot():
                 raise RuntimeError("Cannot remove cell with the robot")
 
         # Возможно тут надо как-то более хитро удалять, чтобы не было
@@ -122,12 +123,13 @@ class Field:
         В случае, если на поле всего одна колонка, выкидывает исключение
         """
         if self._width == 1:
-            raise RuntimeError("Cannot remove the last column")
+            return None
+            # raise RuntimeError("Cannot remove the last column")
 
         need_to_remove = []
         for i in range(self._height):
             need_to_remove.append(self.get_cell(self._width - 1, i))
-            if need_to_remove[-1].get_robot() is not None:
+            if need_to_remove[-1].has_robot():
                 raise RuntimeError("Cannot remove cell with the robot")
 
         # Возможно тут надо как-то более хитро удалять, чтобы не было
