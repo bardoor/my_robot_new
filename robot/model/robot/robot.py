@@ -43,12 +43,12 @@ class Robot:
 
     def step(self, direction: Direction) -> StepResult:
         if self._cell.has_wall(direction):
-            self._fire_on_robot_crashed()
+            self._fire_on_robot_crashed(direction)
             return StepResult.HIT_WALL
 
         neighbor = self._cell.get_neighbor(direction)
         if neighbor is None:
-            self._fire_on_robot_crashed()
+            self._fire_on_robot_crashed(direction)
             return StepResult.NOT_MOVED
 
         old_cell = self._cell
@@ -76,9 +76,9 @@ class Robot:
         for listener in self._listeners:
             listener.on_robot_moved(self, from_cell, to_cell)
 
-    def _fire_on_robot_crashed(self) -> None:
+    def _fire_on_robot_crashed(self, direction: Direction) -> None:
         for listener in self._listeners:
-            listener.on_robot_crashed(self)
+            listener.on_robot_crashed(self, direction)
 
     def _fire_on_robot_painted_cell(self, painted_cell: Cell) -> None:
         for listener in self._listeners:

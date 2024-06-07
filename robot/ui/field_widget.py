@@ -113,7 +113,7 @@ class FieldWidget(Widget, RobotListener):
         self._freeze_mode = False
 
     @override
-    def on_robot_crashed(self, robot: Robot) -> None:
+    def on_robot_crashed(self, robot: Robot, direction: Direction) -> None:
         self.freeze()
 
     @override
