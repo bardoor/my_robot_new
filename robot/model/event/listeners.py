@@ -15,11 +15,11 @@ class RobotListener(ABC):
         ...
 
     @abstractmethod
-    def on_robot_not_moved(self, robot: Robot) -> None:
+    def on_robot_painted_cell(self, robot: Robot, painted_cell: Cell) -> None:
         ...
 
     @abstractmethod
-    def on_robot_painted_cell(self, robot: Robot, painted_cell: Cell) -> None:
+    def on_robot_crashed(self, robot: Robot) -> None:
         ...
 
 

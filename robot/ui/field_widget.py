@@ -90,7 +90,7 @@ class FieldWidget(Widget, RobotListener):
         to_cell_widget.add_item_widget(robot_widget)
 
     @override
-    def on_robot_not_moved(self, robot: Robot) -> None:
+    def on_robot_crashed(self, robot: Robot) -> None:
         pass
 
     @override

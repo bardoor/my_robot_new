@@ -40,19 +40,19 @@ class Robot:
 
     def step(self, direction: Direction) -> StepResult:
         if self._cell.has_wall(direction):
-            self._fire_on_robot_not_moved(self)
+            self._fire_on_robot_crashed()
             return StepResult.HIT_WALL
 
         neighbor = self._cell.get_neighbor(direction)
         if neighbor is None:
-            self._fire_on_robot_not_moved(self)
+            self._fire_on_robot_crashed()
             return StepResult.NOT_MOVED
 
         old_cell = self._cell
         self._cell.set_robot(None)
         neighbor.set_robot(self)
         self._cell = neighbor
-        self._fire_on_robot_moved(self, old_cell, self._cell)
+        self._fire_on_robot_moved(old_cell, self._cell)
         return StepResult.OK
 
     def is_wall(self, direction: Direction) -> bool:
@@ -60,7 +60,7 @@ class Robot:
 
     def paint(self) -> bool:
         self._cell.paint()
-        self._fire_on_robot_painted_cell(self, self._cell)
+        self._fire_on_robot_painted_cell(self._cell)
         return True
 
     def add_listener(self, listener: RobotListener) -> None:
@@ -69,14 +69,16 @@ class Robot:
     def remove_listener(self, listener: RobotListener) -> None:
         self._listeners.remove(listener)
 
-    def _fire_on_robot_moved(self, robot: Robot, from_cell: Cell, to_cell: Cell) -> None:
+    def _fire_on_robot_moved(self, from_cell: Cell, to_cell: Cell) -> None:
         for listener in self._listeners:
-            listener.on_robot_moved(robot, from_cell, to_cell)
+            listener.on_robot_moved(self, from_cell, to_cell)
 
-    def _fire_on_robot_not_moved(self, robot: Robot) -> None:
+    def _fire_on_robot_crashed(self) -> None:
         for listener in self._listeners:
-            listener.on_robot_not_moved(robot)
+            listener.on_robot_crashed(self)
 
-    def _fire_on_robot_painted_cell(self, robot: Robot, painted_cell: Cell) -> None:
+    def _fire_on_robot_painted_cell(self, painted_cell: Cell) -> None:
         for listener in self._listeners:
-            listener.on_robot_painted_cell(robot, painted_cell)
+            listener.on_robot_painted_cell(self, painted_cell)
+
+
