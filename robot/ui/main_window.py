@@ -16,7 +16,7 @@ class MainWindow(Widget):
     def _handle_events(self):
         events = pg.event.get()
         for event in events:
-            self._backing.handle_events(event)
+            self._backing.handle_event(event)
 
     def render(self) -> pg.Surface:
         return self._backing.render()
@@ -24,5 +24,5 @@ class MainWindow(Widget):
     def update(self):
         self._handle_events()
 
-    def handle_events(self, events: pg.event.Event):
+    def handle_event(self, event: pg.event.Event):
         pass
