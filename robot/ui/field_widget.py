@@ -97,7 +97,7 @@ class FieldWidget(Widget, RobotListener):
         pass
 
     @override
-    def handle_events(self, events: pg.event.Event):
+    def handle_event(self, event: pg.event.Event):
         pass
 
     @override
