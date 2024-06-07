@@ -1,26 +1,29 @@
 import threading
+import sys
 from sys import exc_info
 from traceback import format_exception
+from tkinter import filedialog as fd
 
 import pygame
 
+from robot.model.field import dump_field, load_field
 from robot.ui.core import Widget
 
 
 class GUI(threading.Thread):
     instantiated = False # Attempt to prevent the user from running multiple at once
 
-    def __init__(self, main_widget: Widget, fps: int = 30) -> None:
+    def __init__(self, main_window: Widget, fps: int = 30) -> None:
         if GUI.instantiated:
             raise RuntimeError("Only one GUI may run at a time")
         threading.Thread.__init__(self) # Run the Thread parent init
         GUI.instantiated = True # Limit one running at once
 
-        self.main_widget = main_widget
+        self.main_window = main_window
         self.fps = fps
         self.running = True
         self.error = None
-        self.display_size = self.main_widget.size()
+        self.display_size = self.main_window.size()
 
         # Start the thread, which starts the loop
         self.start()
@@ -31,15 +34,32 @@ class GUI(threading.Thread):
         pygame.init()
         self.screen = pygame.display.set_mode(self.display_size)
         self.clock = pygame.time.Clock()
+        self.field = self.main_window.field()
+        self.field_widget = self.main_window.field_widget()
 
         # Start the main game loop
         try:
-            while self.running is True:
-                self.clock.tick(self.fps)
+            while self.running:
                 for event in pygame.event.get():
-                    if event.type == pygame.QUIT: # May be overridden
-                        self.running = False
-                self.screen.blit(self.main_widget.render(), (0, 0))
+                    if event.type == pygame.QUIT:
+                        dump_field(self.field, "output")
+                        pygame.quit()
+                        sys.exit()
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_s:
+                            filename = fd.asksaveasfilename(title="Сохранить обстановку", filetypes=(('Файл обстановки', '.json'),))
+                            dump_field(self.field, filename)
+                        elif event.key == pygame.K_o:
+                            path = fd.askopenfilename(title="Загрузить обстановку", filetypes=(('Файл обстановки', '.json'),))
+                            self.field_widget.set_field(load_field(path))
+
+                    self.main_window.handle_event(event)
+
+                self.main_window.update()
+                if self.main_window.size() != self.display_size:
+                    self.display_size = self.main_window.size()
+                    self.screen = pygame.display.set_mode(self.main_window.size())
+                self.screen.blit(self.main_window.render(), (0, 0))
                 pygame.display.flip()
         except: # Fail gracefully instead of freezing if we have an error
             self.error = "".join(format_exception(*exc_info()))

@@ -22,6 +22,18 @@ def paint() -> None:
     _sender.send(command)
 
 
+def is_wall(direction: Direction) -> bool:
+    command = {"command": "is_wall", "direction": str(direction)}
+    response = _sender.send(command, need_answer=True)
+    return response["result"]
+
+
 def end() -> None:
-    _sender.close()
-    
+    command = {"command": "quit"}
+    _sender.send(command)
+
+
+def load_field(file_name: str) -> None:
+    command = {"command": "load", "field": file_name}
+    _sender.send(command)
+

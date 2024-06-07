@@ -17,8 +17,25 @@ def paint() -> None:
     sender.send(command)
 
 
+def is_wall(direction: Direction) -> bool:
+    command = {"command": "is_wall", "direction": str(direction)}
+    response = sender.send(command, need_answer=True)
+    return response["result"]
+
+
+def end() -> None:
+    command = {"command": "quit"}
+    sender.send(command)
+
+
 step(Direction.EAST)
 step(Direction.EAST)
 paint()
 
-sender.close()
+if is_wall(Direction.EAST):
+    print("На востоке стена")
+else:
+    print("Стены на востоке нет")
+
+if not is_wall(Direction.SOUTH):
+    step(Direction.SOUTH)
