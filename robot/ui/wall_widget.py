@@ -7,9 +7,10 @@ from robot.ui.core.widget import Widget
 from robot.ui.cell_widget import CellWidget
 from robot.model.direction import Direction
 
+from robot.model.field import Wall
 
 if TYPE_CHECKING:
-    from robot.model.field import Wall
+    from robot.model.field import Cell
 
 
 class WallWidget(Widget):
@@ -17,9 +18,10 @@ class WallWidget(Widget):
     LENGTH = CellWidget.CELL_SIZE + WIDTH
     COLOR = pg.color.THECOLORS['purple']
 
-    def __init__(self, wall: Wall) -> None:
+    def __init__(self, cell: Cell, direction: Direction, wall: Wall = None) -> None:
         self._wall = wall
-        self._direction = self._wall.direction()
+        self._cell = cell
+        self._direction = direction
 
     @override
     def size(self) -> tuple[int, int]:
@@ -27,6 +29,11 @@ class WallWidget(Widget):
 
     @override
     def render(self) -> pg.Surface:
+        if self._wall is not None:
+            WallWidget.COLOR = pg.color.THECOLORS['purple']
+        else:
+            WallWidget.COLOR = pg.color.THECOLORS['black']
+
         if self._direction in {Direction.NORTH, Direction.SOUTH}:
             wall_surface = pg.Surface((WallWidget.LENGTH, WallWidget.WIDTH))
         elif self._direction in {Direction.EAST, Direction.WEST}:
@@ -37,9 +44,21 @@ class WallWidget(Widget):
         wall_surface.fill(WallWidget.COLOR)
         return wall_surface
 
+    def remove_wall(self):
+        self._cell.set_wall(self._direction, None)
+        self._wall = None
+
+    def set_wall(self, wall: Wall):
+        self._cell.set_wall(self._direction, wall)
+        self._wall = wall
+
     @override
     def handle_event(self, event: pg.event.Event):
-        pass
+        if event.type == pg.MOUSEBUTTONDOWN:
+            if self._wall is not None:
+                self.remove_wall()
+            else:
+                self.set_wall(Wall(self._direction, self._cell))
 
     @override
     def update(self):

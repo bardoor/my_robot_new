@@ -47,18 +47,7 @@ class FieldWidget(Widget, RobotListener):
                 self._widgets[cell_widget] = (x, y)
                 field_surface.blit(cell_widget.render(), (x, y))
 
-                # Особенность отрисовки стен заключается в следующем:
-                # Если имееются две клетки, A и B, которые являются соседями друг друга,
-                # причем клетка A сосед B с севера, то значит, что B сосед A с юга.
-                # Пусть между ними стоит стена. Цикл ниже будет отрисовывать одну и ту же стену два раза:
-                # сначала, как с севереного направления клетки A, а потом как с южного направления клетки B.
-                # Является ли это багом или фичей вопрос открытый, но отрисовка выглядит хорошо
-                # UPDATE: исправлено... 
-                for direction, wall in cell.walls().items():
-                    if wall in seen_walls:
-                        continue
-                    seen_walls.add(wall)
-                    wall_widget = self._widget_factory.create(wall)
+                for direction in Direction.every():
                     match direction:
                         case Direction.NORTH:
                             wall_x = x
@@ -72,6 +61,16 @@ class FieldWidget(Widget, RobotListener):
                         case Direction.EAST:
                             wall_x = x + WallWidget.LENGTH - WallWidget.WIDTH
                             wall_y = y
+
+                    if not cell.has_wall(direction):
+                        wall_widget = self._widget_factory.create_blank_wall(cell, direction)
+                    else:
+                        wall = cell.get_wall(direction)
+                        if wall in seen_walls:
+                            continue
+                        seen_walls.add(wall)
+                        wall_widget = self._widget_factory.create(wall)
+
                     self._widgets[wall_widget] = (wall_x, wall_y)
                     field_surface.blit(wall_widget.render(), (wall_x, wall_y))
 
@@ -107,7 +106,9 @@ class FieldWidget(Widget, RobotListener):
     def handle_event(self, event: pg.event.Event):
         if event.type == pg.MOUSEBUTTONDOWN:
             pos = event.pos
-            self._get_widget(pos).handle_event(event)
+            clicked_widget = self._get_widget(pos)
+            if clicked_widget is not None:
+                self._get_widget(pos).handle_event(event)
 
     def _get_widget(self, pos: tuple[int, int]):
         for widget, widget_pos in self._widgets.items():

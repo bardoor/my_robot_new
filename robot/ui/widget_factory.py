@@ -9,6 +9,9 @@ from robot.ui.core import Widget
 from robot.model.field import Cell, Wall
 from robot.model.robot import Robot
 
+if TYPE_CHECKING:
+    from robot.model.direction import Direction
+
 
 class WidgetFactory:
     
@@ -16,6 +19,9 @@ class WidgetFactory:
         self._cells = {}
         self._robot = {}
         self._walls = {}
+
+    def create_blank_wall(self, cell: Cell, direction: Direction) -> WallWidget:
+        return WallWidget(cell, direction)
 
     @singledispatchmethod
     def create(self, obj: Any) -> Widget:
@@ -48,7 +54,7 @@ class WidgetFactory:
         if obj in self._walls:
             return self._walls[obj]
         
-        wall_widget = WallWidget(obj)
+        wall_widget = WallWidget(obj.cell(), obj.direction(), obj)
         self._walls[obj] = wall_widget
         return wall_widget
 

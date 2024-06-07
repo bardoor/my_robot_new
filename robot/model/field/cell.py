@@ -28,14 +28,19 @@ class Cell:
     def has_wall(self, direction: Direction) -> bool:
         return self.get_wall(direction) is not None
 
-    def set_wall(self, direction: Direction, wall: Wall | None) -> None:
-        if self.has_wall(direction) and self.get_wall(direction) != wall:
-            raise ValueError("A wall is already set")
+    def remove_wall(self, direction:Direction) -> None:
+        if not self.has_wall(direction):
+            raise ValueError(f"There is no wall at {direction}")
+        del self._walls[direction]
 
-        if wall is None:
+    def set_wall(self, direction: Direction, wall: Wall | None) -> None:
+        if wall is None and self._walls[direction] is not None:
             self._walls[direction] = None
             self.get_neighbor(direction).set_wall(direction.opposite(), None)
             return
+
+        if self.has_wall(direction) and self.get_wall(direction) != wall:
+            raise ValueError("A wall is already set")
 
         self._walls[direction] = wall
         if self.has_neighbor(direction) \
@@ -123,6 +128,9 @@ class Cell:
     def paint(self) -> None:
         self._paints_count += 1
         self._fire_cell_got_painted()
+
+    def unpaint(self) -> None:
+        self._paints_count = 0
 
     def add_listener(self, listener: CellListener) -> None:
         self._listeners.append(listener)
