@@ -14,6 +14,7 @@ class Field:
         self._validate(width, height)
         self._width = width
         self._height = height
+        self._edit_mode = False
 
         self._left_top_cell = None
         self._cells_map = {}
@@ -69,8 +70,17 @@ class Field:
 
         return visited
 
+    def in_edit_mode(self):
+        return self._edit_mode
+
+    def set_edit_mode(self, value: bool):
+        self._edit_mode = value
+
     def add_row(self) -> None:
         """Добавляет новую строку снизу"""
+        if not self.in_edit_mode():
+            return
+
         new_row = Cell()
         self._cells_map['left_bottom'].set_neighbor(Direction.SOUTH, new_row)
         self._cells_map['left_bottom'] = new_row
@@ -84,6 +94,9 @@ class Field:
 
     def add_col(self) -> None:
         """Добавляет новую колонку справа"""
+        if not self.in_edit_mode():
+            return
+
         new_col = Cell()
         self._cells_map['right_top'].set_neighbor(Direction.EAST, new_col)
         self._cells_map['right_top'] = new_col
@@ -99,6 +112,9 @@ class Field:
         """Удаляет нижнюю строку поля.
         В случае, если на поле всего одна строка, выкидывает исключение
         """
+        if not self.in_edit_mode():
+            return
+
         if self._height == 1:
             return
             # raise RuntimeError("Cannot remove the last row")
@@ -122,6 +138,9 @@ class Field:
         """Удаляет правую колонку.
         В случае, если на поле всего одна колонка, выкидывает исключение
         """
+        if not self.in_edit_mode():
+            return
+
         if self._width == 1:
             return None
             # raise RuntimeError("Cannot remove the last column")

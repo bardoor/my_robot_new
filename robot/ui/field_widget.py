@@ -20,6 +20,7 @@ class FieldWidget(Widget, RobotListener):
         self._field = field
         self._widget_factory = WidgetFactory()
         self._widgets = {}
+        self._edit_mode = False
 
         if self._field.robot() is not None:
             self._field.robot().add_listener(self)
@@ -102,13 +103,33 @@ class FieldWidget(Widget, RobotListener):
     def on_robot_painted_cell(self, robot: Robot, painted_cell: Cell) -> None:
         pass
 
+    def set_edit_mode(self, value: bool):
+        self._edit_mode = value
+        self._field.set_edit_mode(value)
+
     @override
     def handle_event(self, event: pg.event.Event):
-        if event.type == pg.MOUSEBUTTONDOWN:
+        if event.type == pg.KEYDOWN and event.key == pg.K_e:
+            self.set_edit_mode(not self._edit_mode)
+
+        if self._edit_mode is False:
+            return
+
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_r and pg.key.get_mods() & pg.KMOD_CTRL:
+                self._field.remove_row()
+            elif event.key == pg.K_c and pg.key.get_mods() & pg.KMOD_CTRL:
+                self._field.remove_col()
+            elif event.key == pg.K_r:
+                self._field.add_row()
+            elif event.key == pg.K_c:
+                self._field.add_col()
+        elif event.type == pg.MOUSEBUTTONDOWN:
             pos = event.pos
             clicked_widget = self._get_widget(pos)
             if clicked_widget is not None:
                 self._get_widget(pos).handle_event(event)
+
 
     def _get_widget(self, pos: tuple[int, int]):
         for widget, widget_pos in self._widgets.items():
