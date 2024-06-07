@@ -25,6 +25,9 @@ class FieldWidget(Widget, RobotListener):
         self._freeze_mode = None
         self.set_field(field)
 
+    def field(self) -> Field:
+        return self._field
+
     def set_field(self, field: Field):
         self._field = field
         self._widget_factory = WidgetFactory()
