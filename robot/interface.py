@@ -1,5 +1,7 @@
-from robot.model.direction import Direction
-from robot.ipc.sender import Sender as _Sender
+from functools import partial
+
+from .model.direction import Direction
+from .ipc.proxy import Proxy as Proxy
 
 
 NORTH = Direction.NORTH
@@ -8,32 +10,41 @@ WEST = Direction.WEST
 EAST = Direction.EAST
 
 
-_sender = _Sender()
-_sender.connect()
+_proxy = None
 
 
+def _connect(f):
+
+    def wrapper(*args, **kwargs):
+        global _proxy
+        if _proxy is None:
+            _proxy = Proxy()
+            _proxy.connect()
+        return f(*args, **kwargs)
+
+    return wrapper
+
+
+@_connect
 def step(direction: Direction) -> None:
-    command = {"command": "step", "direction": str(direction)}
-    _sender.send(command)
+    _proxy.step(direction)
 
 
+@_connect
 def paint() -> None:
-    command = {"command": "paint"}
-    _sender.send(command)
+    _proxy.paint()
 
 
+@_connect
 def is_wall(direction: Direction) -> bool:
-    command = {"command": "is_wall", "direction": str(direction)}
-    response = _sender.send(command, need_answer=True)
-    return response["result"]
+    return _proxy.is_wall(direction)
 
 
+@_connect
 def end() -> None:
-    command = {"command": "quit"}
-    _sender.send(command)
+    _proxy.end()
 
 
+@_connect
 def load_field(file_name: str) -> None:
-    command = {"command": "load", "field": file_name}
-    _sender.send(command)
-
+    _proxy.load_field(file_name)

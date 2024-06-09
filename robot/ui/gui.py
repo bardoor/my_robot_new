@@ -3,6 +3,8 @@ import sys
 from sys import exc_info
 from traceback import format_exception
 from tkinter import filedialog as fd
+import os
+import signal
 
 import pygame
 
@@ -13,13 +15,14 @@ from robot.ui.core import Widget
 class GUI(threading.Thread):
     instantiated = False # Attempt to prevent the user from running multiple at once
 
-    def __init__(self, main_window: Widget, fps: int = 30) -> None:
+    def __init__(self, main_window: Widget, server_pid: int, fps: int = 30) -> None:
         if GUI.instantiated:
             raise RuntimeError("Only one GUI may run at a time")
         threading.Thread.__init__(self) # Run the Thread parent init
         GUI.instantiated = True # Limit one running at once
 
         self.main_window = main_window
+        self.server_pid = server_pid
         self.fps = fps
         self.running = True
         self.error = None
@@ -37,6 +40,7 @@ class GUI(threading.Thread):
         self.field = self.main_window.field()
         self.field_widget = self.main_window.field_widget()
 
+        closed_window = False
         # Start the main game loop
         try:
             while self.running:
@@ -44,7 +48,8 @@ class GUI(threading.Thread):
                     if event.type == pygame.QUIT:
                         dump_field(self.field, "output")
                         pygame.quit()
-                        sys.exit()
+                        closed_window = True
+                        break
                     elif event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_s:
                             filename = fd.asksaveasfilename(title="Сохранить обстановку", filetypes=(('Файл обстановки', '.json'),))
@@ -54,6 +59,9 @@ class GUI(threading.Thread):
                             self.field_widget.set_field(load_field(path))
 
                     self.main_window.handle_event(event)
+
+                if closed_window:
+                    break
 
                 self.main_window.update()
                 if self.main_window.size() != self.display_size:
@@ -67,7 +75,10 @@ class GUI(threading.Thread):
             self.running = False
         # Below will be executed whenever the thread quits gracefully or kill is called
         pygame.quit()
+        print(self.server_pid, file=sys.stderr)
+        #os.kill(self.server_pid, signal.SIGTERM)
         GUI.instantiated = False
+        print(423423423)
         return self.error
 
     def kill(self):

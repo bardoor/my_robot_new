@@ -1,9 +1,10 @@
-from robot.ipc.sender import Sender
+from robot.ipc.proxy import Proxy
 from robot.model.direction import Direction
 
 
-sender = Sender()
+sender = Proxy()
 sender.connect()
+
 
 sender.send({"command": "load", "field": "C:\\Projects\\my_robot_new\\field.json"})
 
@@ -28,8 +29,6 @@ def end() -> None:
     sender.send(command)
 
 
-step(Direction.EAST)
-step(Direction.EAST)
 paint()
 
 if is_wall(Direction.EAST):
@@ -39,3 +38,4 @@ else:
 
 if not is_wall(Direction.SOUTH):
     step(Direction.SOUTH)
+    print("Я сдвинулся")

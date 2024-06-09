@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 import socket
 import os
 import sys
+import signal
 
 from robot.ipc.config import Config
 from robot.ipc.parser import parse
@@ -40,19 +41,26 @@ class Server:
         self.accept()
         
         while True:
+            print(1)
             command = recv_json(self._client)
+            print(command)
 
             match command:
+                case {'command': 'pid', "pid": pid}:
+                    self._pid = pid
+                    send_json(self._client, {"info": "saved pid"})
                 case {'command': 'quit'}:
                     if self._gui is not None:
                         self._gui.kill()
                         send_json(self._client, {"info": "window closed"})
+                        #os.kill(self._pid, signal.SIGTERM)
+                        print(111)
                     break
                 case {'command': 'load', 'field': file_name}:
                     self._program.load_field(file_name)
                     field_widget = FieldWidget(self._program.field())
                     main_window = MainWindow(BackingWidget(field_widget))
-                    self._gui = GUI(main_window)
+                    self._gui = GUI(main_window, self._pid)
                     self._program.start_execution(1.5)
                     send_json(self._client, {"info": "window opened"})
                 case {'command': _}:
@@ -62,8 +70,11 @@ class Server:
                     self.command_executed(parsed_command, result)
                 case _:
                     raise ValueError
+            
+            print(3)
 
         self.close()
+        os.kill(self._pid, signal.SIGTERM)
 
     def command_executed(self, command: RobotCommand, result=None) -> None:
         robot_status = None
