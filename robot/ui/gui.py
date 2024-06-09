@@ -29,15 +29,14 @@ class GUI(threading.Thread):
         self.start()
 
     def run(self):
-        """ The function that is Threaded. DO NOT call this function."""
-        # Set up Pygame
+        # Запуск pygame
         pygame.init()
         self.screen = pygame.display.set_mode(self.display_size)
         self.clock = pygame.time.Clock()
         self.field = self.main_window.field()
         self.field_widget = self.main_window.field_widget()
 
-        # Start the main game loop
+        # Старт игрового цикла
         try:
             while self.running:
                 for event in pygame.event.get():
@@ -61,11 +60,11 @@ class GUI(threading.Thread):
                     self.screen = pygame.display.set_mode(self.main_window.size())
                 self.screen.blit(self.main_window.render(), (0, 0))
                 pygame.display.flip()
-        except: # Fail gracefully instead of freezing if we have an error
+        except: # В случае ошибки вывести сообщение
             self.error = "".join(format_exception(*exc_info()))
             print(self.error)
             self.running = False
-        # Below will be executed whenever the thread quits gracefully or kill is called
+
         pygame.quit()
         GUI.instantiated = False
         return self.error

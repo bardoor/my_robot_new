@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 class Wall:
 
     def __init__(self, direction: Direction, cell: Cell) -> None:
-        self._direction = direction
+        self._direction = direction  # Направление стены относительно клетки
         self._cell = cell
 
     def direction(self) -> Direction:

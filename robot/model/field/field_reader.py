@@ -9,7 +9,10 @@ from robot.model.direction import Direction
 
 
 class FieldReader:
-    
+    """
+    Класс для чтения json файлов, которые содержат в себе обстановку поля
+    А также для заселения поля по прочитанной обстановки
+    """
     def __init__(self, file_name: str) -> None:
         self._load(file_name)
 
@@ -54,4 +57,4 @@ class FieldReader:
     
 
 def load_field(env_file: str | Path) -> Field:
-    return FieldReader(env_file).get_field() 
+    return FieldReader(env_file).get_field()

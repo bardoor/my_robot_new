@@ -62,7 +62,10 @@ class FieldWidget(Widget, RobotListener):
                 self._widgets[cell_widget] = (x, y)
                 field_surface.blit(cell_widget.render(), (x, y))
 
+                # Магия в том, что виджеты стен есть между каждой парой клеток
+                # Это нужно для упрощения добавления стены - ждём нажатия на "пустой" WallWidget
                 for direction in Direction.every():
+                    # Считаем координаты виджета в зависимости от расположения стены
                     match direction:
                         case Direction.NORTH:
                             wall_x = x
@@ -77,8 +80,10 @@ class FieldWidget(Widget, RobotListener):
                             wall_x = x + WallWidget.LENGTH - WallWidget.WIDTH
                             wall_y = y
 
+                    # Если в текущем направлении нет стены, добавляем пустой виджет стены
                     if not cell.has_wall(direction):
                         wall_widget = self._widget_factory.create_blank_wall(cell, direction)
+                    # Иначе добавляем полноценный виджет стены
                     else:
                         wall = cell.get_wall(direction)
                         if wall in seen_walls:
@@ -86,6 +91,7 @@ class FieldWidget(Widget, RobotListener):
                         seen_walls.add(wall)
                         wall_widget = self._widget_factory.create(wall)
 
+                    # Помещаем новоиспечённый виджет в список и рисуем его на поверхности поля
                     self._widgets[wall_widget] = (wall_x, wall_y)
                     field_surface.blit(wall_widget.render(), (wall_x, wall_y))
 
@@ -132,6 +138,7 @@ class FieldWidget(Widget, RobotListener):
         if self._freeze_mode is True:
             return
 
+        # Действия, доступные без режима редактирования
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_e:
                 self.set_edit_mode(not self._edit_mode)
@@ -149,6 +156,7 @@ class FieldWidget(Widget, RobotListener):
         if self._edit_mode is False:
             return
 
+        # Действия, доступные только в режиме редактирования
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_r and pg.key.get_mods() & pg.KMOD_CTRL:
                 self._field.remove_row()
@@ -177,7 +185,6 @@ class FieldWidget(Widget, RobotListener):
         for widget in self._widgets:
             if isinstance(widget, CellWidget):
                 widget.remove_robot_widget()
-
 
     def _get_widget(self, pos: tuple[int, int]):
         for widget, widget_pos in self._widgets.items():
