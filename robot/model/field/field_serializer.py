@@ -5,7 +5,9 @@ from robot.model.field import Field
 
 
 class FieldSerializer:
-    
+    """
+    Класс для сериализации поля, выгрузки его в формат json
+    """
     def __init__(self, field: Field) -> None:
         self._field = field
 
@@ -59,3 +61,4 @@ class FieldSerializer:
 
 def dump_field(field: Field, file_name: str) -> None:
     FieldSerializer(field).dump_field(file_name)
+    

@@ -29,6 +29,7 @@ class RobotWidget(Widget, RobotListener):
         topleft = surface.get_rect().topleft
         w, h = surface.get_size()
 
+        # Определяем координаты прямоугольника в зависимости от направления
         match direction:
             case Direction.EAST:
                 topleft = (topleft[0] + w // 2, topleft[1])

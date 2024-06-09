@@ -19,7 +19,7 @@ class MainWindow(Widget):
     def field(self) -> Field:
         return self._backing.field_widget().field()
 
-    # Юзать будем когда роботом станет управлять программа а не стрелки
+    # Юзать будем когда роботом станет управлять программа, а не стрелки
     def _handle_events(self):
         events = pg.event.get()
         for event in events:

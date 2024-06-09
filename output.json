@@ -1,0 +1,36 @@
+{
+    "height": 3,
+    "width": 3,
+    "walls": [
+        {
+            "x": 0,
+            "y": 0,
+            "direction": "east"
+        },
+        {
+            "x": 0,
+            "y": 1,
+            "direction": "south"
+        },
+        {
+            "x": 1,
+            "y": 1,
+            "direction": "east"
+        },
+        {
+            "x": 1,
+            "y": 1,
+            "direction": "south"
+        }
+    ],
+    "painted": [
+        {
+            "x": 0,
+            "y": 1
+        }
+    ],
+    "robot": {
+        "x": 0,
+        "y": 0
+    }
+}

@@ -34,14 +34,17 @@ class Cell:
         del self._walls[direction]
 
     def set_wall(self, direction: Direction, wall: Wall | None) -> None:
+        # Удаляем стену, если в указанном направлении она есть, а переданная стена - None
         if wall is None and self._walls[direction] is not None:
             self._walls[direction] = None
             self.get_neighbor(direction).set_wall(direction.opposite(), None)
             return
 
+        # Ругаемся если стена в указанном направлении уже установлена
         if self.has_wall(direction) and self.get_wall(direction) != wall:
             raise ValueError("A wall is already set")
 
+        # Ставим стену в указанном направлении себе и своему соседу (если он есть)
         self._walls[direction] = wall
         if self.has_neighbor(direction) \
                 and (n := self.get_neighbor(direction).get_wall(direction.opposite())) != wall:
@@ -56,15 +59,19 @@ class Cell:
         return self.get_neighbor(direction) is not None
 
     def set_neighbor(self, direction: Direction, neighbor: Cell | None) -> None:
+        # Удаляем соседа в направлении, если он уже есть, а переданный сосед - None
         if neighbor is None:
-            t = self._neighbors.get(direction, None)
-            if t is not None:
+            prev_neighbor = self._neighbors.get(direction, None)
+            if prev_neighbor is not None:
+                # Удаляем информацию о соседе у себя
                 del self._neighbors[direction]
 
-                if t.get_neighbor(direction.opposite()) == self:
-                    t.set_neighbor(direction.opposite(), None)
+                # Просим соседа забыть нас
+                if prev_neighbor.get_neighbor(direction.opposite()) == self:
+                    prev_neighbor.set_neighbor(direction.opposite(), None)
             return
 
+        # Ругаемся если у нас или у переданного соседа есть соседи в желаемых направлениях
         if (self.get_neighbor(direction) not in {None, neighbor}) \
                 or (neighbor.get_neighbor(direction.opposite()) not in {None, self}):
             raise ValueError('"neighbor" cannot be set as a neighbor, because it has its own neighbor already')
@@ -79,7 +86,9 @@ class Cell:
         # здесь все три богатыря... 
         # На питоне в строках кода
         # разобраться не смогя...
+        # Если у нас есть сосед по часовой стрелке от переданного направления
         if (clockwise := self.get_neighbor(direction.clockwise())) is not None:
+            # ... Берём этого соседа и если у него есть сосед в оригинальном направлении
             if (clockwise := clockwise.get_neighbor(direction)) is not None \
                     and clockwise.get_neighbor(direction.anticlockwise()) != neighbor:
                 clockwise.set_neighbor(direction.anticlockwise(), neighbor)

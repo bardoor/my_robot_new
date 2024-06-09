@@ -109,15 +109,13 @@ class Field:
         self._width += 1
 
     def remove_row(self) -> None:
-        """Удаляет нижнюю строку поля.
-        В случае, если на поле всего одна строка, выкидывает исключение
+        """Удаляет нижнюю строку поля
         """
         if not self.in_edit_mode():
             return
 
         if self._height == 1:
             return
-            # raise RuntimeError("Cannot remove the last row")
 
         need_to_remove = []
         for i in range(self._width):
@@ -126,7 +124,7 @@ class Field:
                 raise RuntimeError("Cannot remove cell with the robot")
 
         # Возможно тут надо как-то более хитро удалять, чтобы не было
-        # висячих ссылок или типа того, но как же мне лень в этом разбираться...
+        # висячих ссылок...
         for cell in need_to_remove:
             cell.set_neighbor(Direction.NORTH, None)
 
@@ -135,15 +133,13 @@ class Field:
         self._height -= 1
 
     def remove_col(self) -> None:
-        """Удаляет правую колонку.
-        В случае, если на поле всего одна колонка, выкидывает исключение
+        """Удаляет правую колонку
         """
         if not self.in_edit_mode():
             return
 
         if self._width == 1:
-            return None
-            # raise RuntimeError("Cannot remove the last column")
+            return
 
         need_to_remove = []
         for i in range(self._height):
@@ -152,7 +148,7 @@ class Field:
                 raise RuntimeError("Cannot remove cell with the robot")
 
         # Возможно тут надо как-то более хитро удалять, чтобы не было
-        # висячих ссылок или типа того, но как же мне лень в этом разбираться...
+        # висячих ссылок...
         for cell in need_to_remove:
             cell.set_neighbor(Direction.WEST, None)
 
