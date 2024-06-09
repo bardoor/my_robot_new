@@ -41,7 +41,6 @@ class Server:
         self.accept()
         
         while True:
-            print(1)
             command = recv_json(self._client)
             print(command)
 
@@ -70,12 +69,9 @@ class Server:
                     self.command_executed(parsed_command, result)
                 case _:
                     raise ValueError
-            
-            print(3)
 
         self.close()
         os.kill(self._pid, signal.SIGTERM)
-        print(555555555555555555)
 
     def command_executed(self, command: RobotCommand, result=None) -> None:
         robot_status = None
