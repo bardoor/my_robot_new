@@ -58,7 +58,7 @@ class Proxy:
         self.send(command)
 
     def load_field(self, file_name: str) -> None:
-        command = {"command": "load", "field": file_name}
+        command = {"command": "load", "field": str(Path(file_name).resolve())}
         self.send(command)
 
     def is_connected(self) -> bool:
