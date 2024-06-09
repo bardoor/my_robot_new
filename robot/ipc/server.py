@@ -52,9 +52,9 @@ class Server:
                 case {'command': 'quit'}:
                     if self._gui is not None:
                         self._gui.kill()
+                        self._gui.join()
                         send_json(self._client, {"info": "window closed"})
-                        #os.kill(self._pid, signal.SIGTERM)
-                        print(111)
+                        print(self._gui.is_alive())
                     break
                 case {'command': 'load', 'field': file_name}:
                     self._program.load_field(file_name)
@@ -75,6 +75,7 @@ class Server:
 
         self.close()
         os.kill(self._pid, signal.SIGTERM)
+        print(555555555555555555)
 
     def command_executed(self, command: RobotCommand, result=None) -> None:
         robot_status = None

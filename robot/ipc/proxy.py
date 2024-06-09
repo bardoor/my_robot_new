@@ -19,12 +19,12 @@ def _run_server() -> int:
     if not sys.executable:
         raise CannotFindPythonExecutable
     
-    pythonw_path = Path(sys.executable).parent / "pythonw"
+    pythonw_path = Path(sys.executable).parent / "python"
     p = Popen([pythonw_path, "-m", "robot.ipc.server"],
           stdin=PIPE,
           stdout=PIPE,
           stderr=PIPE,
-          shell=True,
+          shell=False,
           creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW,
           )
 

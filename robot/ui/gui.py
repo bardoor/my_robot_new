@@ -52,7 +52,8 @@ class GUI(threading.Thread):
                     elif event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_s:
                             filename = fd.asksaveasfilename(title="Сохранить обстановку", filetypes=(('Файл обстановки', '.json'),))
-                            dump_field(self.field, filename)
+                            if filename:
+                                dump_field(self.field, filename)
                         elif event.key == pygame.K_o:
                             path = fd.askopenfilename(title="Загрузить обстановку", filetypes=(('Файл обстановки', '.json'),))
                             self.field_widget.set_field(load_field(path))
@@ -77,7 +78,6 @@ class GUI(threading.Thread):
         print(self.server_pid, file=sys.stderr)
         #os.kill(self.server_pid, signal.SIGTERM)
         GUI.instantiated = False
-        print(423423423)
         return self.error
 
     def kill(self):
