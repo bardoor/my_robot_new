@@ -35,7 +35,7 @@ class FieldWidget(Widget, RobotListener):
         self._edit_mode = False
         self._freeze_mode = False
 
-        print(self._field.robot())
+        # print(self._field.robot())
         if self._field.robot() is not None:
             self._field.robot().add_listener(self)
 

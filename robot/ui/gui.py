@@ -10,6 +10,7 @@ import pygame
 
 from robot.model.field import dump_field, load_field
 from robot.ui.core import Widget
+from robot.ipc.utils import kill_process
 
 
 class GUI(threading.Thread):
@@ -76,7 +77,7 @@ class GUI(threading.Thread):
 
         pygame.quit()
         print(self.server_pid, file=sys.stderr)
-        #os.kill(self.server_pid, signal.SIGTERM)
+        kill_process(self.server_pid)
         GUI.instantiated = False
         return self.error
 

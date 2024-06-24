@@ -1,7 +1,11 @@
-from pathlib import Path
 import json
 
 from robot.model.field import Field
+from robot.serialize.base import (
+    NotFieldFileError,
+    add_extension_if_not_present,
+    get_ext,
+    )
 
 
 class FieldSerializer:
@@ -41,10 +45,7 @@ class FieldSerializer:
                     return {'x': x, 'y': y}
         return None
     
-    def dump_field(self, file_name: str | Path) -> None:
-        if isinstance(file_name, str) and not file_name.endswith('.json'):
-            file_name = f'{file_name}.json'
-
+    def dump_field(self) -> None:
         env_config = {'height': self._field.height(), 'width': self._field.width()}
         walls = self._get_walls()
         env_config['walls'] = walls
@@ -55,10 +56,22 @@ class FieldSerializer:
         robot = self._get_robot_pos()
         env_config['robot'] = robot
 
-        with open(file_name, 'w') as output:
-            json.dump(env_config, output, indent=4)
+        return env_config
 
 
-def dump_field(field: Field, file_name: str) -> None:
-    FieldSerializer(field).dump_field(file_name)
-    
+def dump_field_as_dict(field: Field) -> dict:
+    '''Сериализует поле в виде словаря'''
+    return FieldSerializer(field).dump_field()
+
+
+def dump_field_to_json(field: Field, file_name: str) -> None:
+    '''Сериализует поле в виде json файла'''
+    field_config = dump_field_as_dict(field)
+
+    ext = get_ext(file_name)
+    if ext and ext != 'json':
+        raise NotFieldFileError("Expected file with .json extension or no extension at all")
+
+    file_name = add_extension_if_not_present(file_name, 'json')
+    with open(file_name, 'w') as config_file:
+        json.dump(field_config, config_file, indent=4)

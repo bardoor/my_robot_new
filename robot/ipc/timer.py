@@ -1,6 +1,6 @@
 from threading import Timer
 
-class PyTimer():
+class PyTimer:
     """Python equivalent of JavaScript setInterval function 
        Call a function after a specified number of seconds:
 
@@ -69,12 +69,10 @@ class PyTimer():
         self.timer.cancel()
         # The cancel function only prevents timer being called but the thread might still be active, so make 
         # sure you call join() to end the thread
-        self.timer.join() 
+        self.timer.join()
         # Reset logger and call limit 
         self.has_call_limit = False
         self.set_logger(None)
 
     def is_running(self):
         return self.running
-
-

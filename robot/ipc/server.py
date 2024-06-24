@@ -1,119 +1,195 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import socket
-import os
-import sys
-import signal
+from threading import Thread
+import select
+from queue import Queue
 
 from robot.ipc.config import Config
 from robot.ipc.parser import parse
 from robot.ipc.socket_json import send_json, recv_json
-from robot.ui.gui import GUI
 from robot.ui import *
-from robot.model.program import Program
+from robot.ipc.program import Program
 from robot.model.robot.robot import StepResult
 from robot.model.robot.robot_command import *
+from robot.ipc.utils import is_process_alive
+from .events import *
 
 
-sys.stderr = open(os.path.dirname(os.path.realpath(__file__)) + '\\err.txt', 'w')
+class Server(Thread):
+    '''Реализует взаимодействие между клиентом (т.е. IDE, скриптом и т.д.) и моделью.'''
 
+    def __init__(self,
+                 ui_events_queue: Queue,
+                 server_events_queue: Queue,
+                 ) -> None:
+        '''
+        :param ui_events_queue: Очередь событий графического окна.
+        :param server_events_queue: Очередь событий сервера.
+        '''
+        super().__init__()
 
-class Server:
+        self._ui_events_queue = ui_events_queue
+        self._server_events_queue = server_events_queue
 
-    def __init__(self):
-        self._program = Program()
-        #self._program.add_listener(self)
+        # Сокет сервера
         self._server = socket.socket()
         self._server.bind((Config.HOST, Config.PORT))
         self._server.listen(1)
+
+        # Сокет клиента и его адрес
         self._client = None
         self._client_addr = None
-        self._gui = None
-        self.__log_file = open(os.path.dirname(os.path.realpath(__file__)) + '\\log.txt', 'w')
+        # Идентификатор процесса клиента (используется
+        # для отслеживания состояние процесса - жив или нет)
+        self._client_pid = None
 
-    def has_client(self):
-        return self._client is not None
+        # Флаг, показывающий, работает ли сервер
+        self._running = True
 
-    def accept(self):
-        self._client, self._client_addr = self._server.accept()
+        # Интервал исполнения команд
+        self._exec_interval = Config.EXEC_INTERVAL
 
-    def run(self):
-        self.accept()
+        # Связь с моделью: программа (контейнер команд) и робот
+        self._program = None
+        self._robot = None
+
+    def run(self) -> None:
+        '''Цикл обработки сервера.'''
+        while self._running:
+            # Обрабатываем события, поступившие к серверу от интерфейса
+            # (в ходе обработки событий интерфейс может потребовать от сервера прекратить
+            # обрабатывать команды, поэтому необходимо проверить, а надо ли это делать дальше)
+            self._handle_event()
+            if not self._running:
+                break
+
+            # Если к серверу еще никто не подключился, пытается кого-нибудь подключить.
+            # В случае успешного подключения отправляем интерфейсу событие на перезагрузку поля
+            # и дожидаемся того, как интерфейс его обработает (командам необходим исполнитель - 
+            # робот - а его можно получить только если поле было загружено)
+            if self._client is None:
+                if self._accept():
+                    reload_field_event = Event(EventType.RELOAD_FIELD)
+                    self._ui_events_queue.put(reload_field_event)
+                    self._ui_events_queue.join()
+                continue
+
+            # Далее мы обрабатываем по одному запросу от клиента
+            self._process_request()
+
+            # После обработки запроса проверяем, не отключился ли клиент
+            # (как только все команды выполнились, процесс клиента умирает)
+            if not is_process_alive(self._client_pid):
+                self._close()
+
+        self._server.close()
+        self._server = None
+
+    def _accept(self) -> bool:
+        '''
+        Реализация неблокирующего соединения с клиентским сокетом.
+
+        :return: `True` если соединение установлено, `False` иначе.
+        '''
+        inputs = [self._server]
+        outputs = []
+        readable, _, _ = select.select(inputs, outputs, inputs, 1)
+
+        if not readable:
+            return False
         
-        while True:
-            command = recv_json(self._client)
-            print(command)
+        for sock in readable:
+            if sock == self._server:
+                self._client, self._client_addr = self._server.accept()
+                break
 
-            match command:
-                case {'command': 'pid', "pid": pid}:
-                    self._pid = pid
-                    send_json(self._client, {"info": "saved pid"})
-                case {'command': 'quit'}:
-                    if self._gui is not None:
-                        self._gui.kill()
-                        self._gui.join()
-                        send_json(self._client, {"info": "window closed"})
-                        print(self._gui.is_alive())
-                    break
-                case {'command': 'load', 'field': file_name}:
-                    self._program.load_field(file_name)
-                    field_widget = FieldWidget(self._program.field())
-                    main_window = MainWindow(BackingWidget(field_widget))
-                    self._gui = GUI(main_window, self._pid)
-                    self._program.start_execution(1.5)
-                    send_json(self._client, {"info": "window opened"})
-                case {'command': _}:
-                    parsed_command = parse(command)
-                    self._program.add_command(parsed_command)
-                    result = self._program.get()
-                    self.command_executed(parsed_command, result)
+        return True
+
+    def _close(self) -> None:
+        '''
+        Очистка ресурсов: закрывает соединение с клиентским сокетом
+        и очищает программу с роботом.
+        Может быть вызвана, если клиентский соект не подключен.
+        '''
+        if self._program is not None:
+            self._program.end_execution()
+            self._program = None
+            self._robot = None
+        if self._client is not None:
+            self._client.close()
+            self._client = None
+            self._client_addr = None
+            self._client_pid = None
+
+    def _process_request(self) -> None:
+        '''
+        Обработка клиентского запроса (команды для робота).
+        '''
+        started_execution = False
+        request = self._receive_request()
+        match request:
+            case {'command': 'register', 'pid': client_pid}:
+                self._client_pid = client_pid
+                self._send_response(status='registered')
+            case {'command': _}:
+                if not started_execution:
+                    self._program.start_execution(self._exec_interval)
+                    started_execution = True
+                parsed_request = parse(request)
+                self._program.add_command(parsed_request)
+                result = self._program.get_result()
+                self._send_command_result(parsed_request, result)
+            case _:
+                raise RuntimeError(f'Unsupported request: {request}')
+
+    def _handle_event(self) -> None:
+        '''
+        Обработка событий, посланных серверу.
+        '''
+        while not self._server_events_queue.empty():
+            event = self._server_events_queue.get()
+            match event.type:
+                case EventType.STOP_RUNNING_SERVER:
+                    self._running = False
+                    self._close()
+                case EventType.SET_ROBOT:
+                    self._robot = event.robot
+                    self._program = Program(self._robot)
                 case _:
-                    raise ValueError
+                    raise ValueError(f'[SERVER]: cannot handle event: {event.type}')
+            self._server_events_queue.task_done()
 
-        self.close()
-        os.kill(self._pid, signal.SIGTERM)
+    def _receive_request(self) -> dict:
+        '''Обертка для получения данных от клиента'''
+        return recv_json(self._client)
 
-    def command_executed(self, command: RobotCommand, result=None) -> None:
-        robot_status = None
-        command_type = None
+    def _send_response(self, **response_data) -> None:
+        '''
+        Обертка для отправления данных клиенту.
 
+        :param response_data: Дополнительные атрибуты ответа.
+        '''
+        send_json(self._client, response_data)
+
+    def _send_command_result(self, command: RobotCommand, result=None) -> None:
         if isinstance(command, Step):
-            command_type = "step"
             match result:
                 case StepResult.OK:
-                    robot_status = "alive"
-                case StepResult.NOT_MOVED, StepResult.HIT_WALL:
-                    robot_status = "crashed"
+                    status = "executed"
+                case StepResult.NOT_MOVED | StepResult.HIT_WALL:
+                    status = "crashed"
                 case _:
+                    print(f'RESULT {result}')
                     raise ValueError
         elif isinstance(command, Paint):
-            command_type = "paint"
-            robot_status = "alive"
+            status = "executed"
         elif isinstance(command, CheckWall):
-            command_type = "is_wall"
-            robot_status = "alive"
+            status = "executed"
         else:
             raise ValueError
 
-        response = {"robot": robot_status, "command_type": command_type}
-        # Отвратительно...
         if isinstance(result, bool):
-            response["result"] = result
-
-        send_json(self._client, response)
-
-    def close(self):
-        if self._client is not None:
-            self._client.close()
-            self._client = self._client_addr = None
-        if self._server is not None:
-            self._server.close()
-            self._server = None
-
-    def __del__(self):
-        self.close()
-        self._server = None
-
-
-_server = Server()
-_server.run()
+            self._send_response(status=status, result=result)
+        else:
+            self._send_response(status=status)

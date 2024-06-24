@@ -1,3 +1,5 @@
 class Config:
     HOST = 'localhost'
-    PORT = 777
+    PORT = 44444
+    EXEC_INTERVAL = 1.5
+    

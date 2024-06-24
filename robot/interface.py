@@ -1,13 +1,16 @@
-from functools import partial
-
-from .model.direction import Direction
-from .ipc.proxy import Proxy as Proxy
+from robot.model.direction import Direction
+from robot.model.robot.robot import StepResult
+from robot.ipc.proxy import Proxy as Proxy
 
 
 NORTH = Direction.NORTH
 SOUTH = Direction.SOUTH
 WEST = Direction.WEST
 EAST = Direction.EAST
+
+
+class RobotHitWallError(RuntimeError):
+    pass
 
 
 _proxy = None
@@ -27,7 +30,9 @@ def _connect(f):
 
 @_connect
 def step(direction: Direction) -> None:
-    _proxy.step(direction)
+    step_result = _proxy.step(direction)
+    if step_result == StepResult.HIT_WALL:
+        raise RobotHitWallError("Робот врезался в стену")
 
 
 @_connect
@@ -38,13 +43,3 @@ def paint() -> None:
 @_connect
 def is_wall(direction: Direction) -> bool:
     return _proxy.is_wall(direction)
-
-
-@_connect
-def end() -> None:
-    _proxy.end()
-
-
-@_connect
-def load_field(file_name: str) -> None:
-    _proxy.load_field(file_name)

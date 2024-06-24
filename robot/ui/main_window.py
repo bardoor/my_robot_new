@@ -3,7 +3,7 @@ from typing import override, TYPE_CHECKING
 
 import pygame as pg
 
-from robot.model.field import Field, load_field
+from robot.model.field import Field
 from robot.ui.core import Widget
 from robot.ui.field_widget import FieldWidget
 from robot.ui.backing_widget import BackingWidget
