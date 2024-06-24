@@ -42,7 +42,8 @@ def run_ui() -> None:
     RUN_COMMAND = (
         '.\\venv\\Scripts\\Activate.ps1;'
         'pip install -r requirements.txt;'
-        'py -m robot.ipc.run_ui'
+        'py -m robot.ipc.run_ui;'
+        'deactivate'
     )
     EXECUTABLE_SHELL = "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
 
