@@ -35,7 +35,13 @@ def is_process_alive(pid: int) -> bool:
     result = subprocess.check_output(
         ["tasklist", "/nh", "/fi", f"pid eq {pid}"],
         creationflags=subprocess.CREATE_NO_WINDOW,
-        ).decode()
+        )
+    
+    encoding = _guess_encoding(result)
+    if encoding is None:
+        raise CannotDetectEncodingError
+
+    result = result.decode(encoding)
     return str(pid) in result
 
 
