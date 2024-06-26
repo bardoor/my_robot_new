@@ -1,4 +1,5 @@
 import subprocess
+import re
 
 
 def _guess_encoding(byte_sequence: bytes) -> str | None:
@@ -41,8 +42,12 @@ def is_process_alive(pid: int) -> bool:
     if encoding is None:
         raise CannotDetectEncodingError
 
-    result = result.decode(encoding)
-    return str(pid) in result
+    # Строка, которую возвращает tasklist имеет вид
+    # browser.exe                   9392 Console                    1    17 980 K
+    # Сжимаем все пробелы в один, после чего сплитим и изымаем PID
+    result = re.sub(r'\s+', ' ', result.decode(encoding))
+    parts = result.split()
+    return str(pid) == parts[1]
 
 
 def kill_process(pid: int) -> None:
