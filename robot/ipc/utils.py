@@ -1,6 +1,32 @@
 import subprocess
 
 
+def _guess_encoding(byte_sequence: bytes) -> str | None:
+    """
+    Пытается угадать, в какой кодировке записана последовательность байтов.
+    В случае, если определить кодировку не получается, возвращается `None`.
+    """
+    variants = [
+        'ascii',
+        'cp866',
+        'cp1251',
+        'utf_8',
+    ]
+
+    for encoding in variants:
+        try:
+            byte_sequence.decode(encoding)
+            return encoding
+        except:
+            pass
+
+    return None
+
+
+class CannotDetectEncodingError(Exception):
+    pass
+
+
 def is_process_alive(pid: int) -> bool:
     """
     Проверяет, что процесс с заданным PID существует.
