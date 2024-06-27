@@ -1,7 +1,6 @@
 from pathlib import Path
 import sys
 import subprocess
-import shutil
 import logging
 
 
@@ -43,8 +42,6 @@ def run() -> None:
             stdout=sys.stdout,
             stderr=sys.stderr,
         )
-        # Удаляем папку с виртуальной средой по окончании выполнения
-        shutil.rmtree(venv, ignore_errors=True)
     except subprocess.CalledProcessError as ex:
         logger.error(f'Error: returned non-zero exit status {ex.returncode}')
 
